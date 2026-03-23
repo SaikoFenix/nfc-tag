@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NFC Street Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --yellow: #f5e642;
+  --red: #ff3c3c;
+  --purple: #7c3aed;
+  --purple-light: #a78bfa;
+  --green: #4caf50;
+  --teal: #00d4d4;
+  --orange: #ffa020;
+  --pink: #f0a0f0;
+  --bg: #0d0d0d;
+  --bg2: #111;
+  --bg3: #1a1a1a;
+  --bg4: #222;
+  --border: #2a2a2a;
+  --border2: #1e1e1e;
+  --text: #f0f0e8;
+  --muted: #888;
+  --dim: #555;
+  --faint: #333;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;min-height:100vh;overflow-x:hidden;}
+.app{max-width:480px;margin:0 auto;padding:1rem 1rem 5rem;}
+
+/* ─── TYPOGRAPHY ─── */
+.logo{font-family:'Black Han Sans',sans-serif;line-height:1;letter-spacing:-1px;text-transform:uppercase;}
+.mono{font-family:'Space Mono',monospace;}
+.label{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--red);font-weight:700;}
+.muted{color:var(--muted);font-size:11px;}
+.tagline{font-size:9px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;}
+
+/* ─── SCREENS ─── */
+.screen{display:none;animation:fadeIn 0.2s ease;} .screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0d0d0dee;border-top:1px solid var(--border);display:flex;z-index:100;backdrop-filter:blur(8px);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 14px;cursor:pointer;gap:3px;}
+.nav-icon{font-size:18px;line-height:1;}
+.nav-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}
+.nav-item.active .nav-label{color:var(--yellow);}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 4px var(--yellow));}
+
+/* ─── BUTTONS ─── */
+.btn{font-family:'Space Mono',monospace;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:none;border-radius:4px;cursor:pointer;transition:transform 0.1s;display:block;width:100%;}
+.btn:active{transform:scale(0.97);}
+.btn-lg{padding:14px;font-size:13px;margin-top:8px;}
+.btn-md{padding:10px 16px;font-size:11px;margin-top:6px;}
+.btn-sm{padding:7px 12px;font-size:10px;}
+.btn-y{background:var(--yellow);color:#0d0d0d;}
+.btn-r{background:var(--red);color:#fff;}
+.btn-p{background:var(--purple);color:#fff;}
+.btn-ghost{background:var(--bg3);color:var(--dim);border:1px solid var(--border);}
+.btn-outline-y{background:transparent;color:var(--yellow);border:1px solid var(--border);}
+.btn-outline-p{background:transparent;color:var(--purple-light);border:1px solid #2a1f4f;}
+.btn-back{background:none;border:none;color:var(--dim);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;padding:0 0 14px;text-transform:uppercase;}
+.btn-back:hover{color:var(--text);}
+.btn-add{background:var(--yellow);color:#0d0d0d;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;border:none;border-radius:4px;cursor:pointer;padding:10px 14px;white-space:nowrap;}
+
+/* ─── INPUTS ─── */
+input[type=text]{background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:10px 12px;outline:none;width:100%;}
+input[type=text]:focus{border-color:var(--yellow);}
+input[type=text]::placeholder{color:var(--faint);}
+select{font-family:'Space Mono',monospace;font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--text);padding:6px 10px;outline:none;}
+.row{display:flex;gap:8px;margin-bottom:10px;}
+.row input{flex:1;}
+
+/* ─── CARDS ─── */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:10px;}
+.player-chip{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:9px 13px;margin-bottom:7px;font-size:13px;}
+.player-chip .pname{font-weight:700;}
+.nfc-pill{font-size:9px;letter-spacing:1px;padding:3px 7px;border-radius:2px;border:1px solid;}
+.pill-set{background:#101a10;color:var(--green);border-color:#1e3a1e;}
+.pill-unset{background:var(--bg3);color:var(--dim);border-color:var(--border);}
+.remove-btn{background:none;border:none;color:var(--faint);cursor:pointer;font-size:15px;padding:2px 6px;}
+.remove-btn:hover{color:var(--red);}
+
+/* ─── TOGGLES ─── */
+.toggle-row{display:flex;gap:4px;flex-wrap:wrap;}
+.topt{font-family:'Space Mono',monospace;font-size:10px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--dim);padding:5px 10px;cursor:pointer;}
+.topt.ay{background:var(--yellow);color:#0d0d0d;border-color:var(--yellow);font-weight:700;}
+.topt.ar{background:var(--red);color:#fff;border-color:var(--red);font-weight:700;}
+.topt.ap{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:700;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:11px 14px;margin-bottom:8px;}
+.settings-row label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+
+/* ─── STAT BARS ─── */
+.stat-strip{display:grid;gap:8px;margin-bottom:12px;}
+.s2{grid-template-columns:1fr 1fr;} .s3{grid-template-columns:1fr 1fr 1fr;} .s4{grid-template-columns:repeat(4,1fr);}
+.stat-box{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:9px 10px;text-align:center;}
+.sb-lbl{font-size:8px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin-bottom:3px;}
+.sb-val{font-family:'Black Han Sans',sans-serif;font-size:22px;line-height:1;}
+.vy{color:var(--yellow);} .vr{color:var(--red);} .vg{color:var(--green);} .vp{color:var(--purple-light);}
+
+/* ─── TIMER ─── */
+.timer-wrap{text-align:center;margin-bottom:12px;}
+.timer-big{font-family:'Black Han Sans',sans-serif;font-size:72px;color:var(--yellow);line-height:1;}
+.timer-big.warn{color:#ff7700;} .timer-big.danger{color:var(--red);}
+.timer-lbl{font-size:9px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-top:2px;}
+
+/* ─── SCAN ZONE ─── */
+.scan-zone{background:var(--bg);border:2px dashed var(--border);border-radius:4px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:10px;}
+.scan-zone:hover{border-color:var(--dim);}
+.scan-zone.scanning{border-color:var(--yellow);animation:scanpulse 0.8s infinite;}
+.scan-zone.ok-g{border-color:var(--green);}
+.scan-zone.ok-r{border-color:var(--red);}
+.scan-zone.ok-y{border-color:var(--yellow);}
+.scan-zone.ok-p{border-color:var(--purple);}
+@keyframes scanpulse{0%,100%{border-color:var(--yellow);}50%{border-color:var(--border);}}
+.sz-icon{width:38px;height:38px;border:2px solid var(--border);border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--dim);}
+.scan-zone.scanning .sz-icon{border-color:var(--yellow);color:var(--yellow);}
+.scan-zone.ok-g .sz-icon{border-color:var(--green);color:var(--green);background:#101a10;}
+.scan-zone.ok-r .sz-icon{border-color:var(--red);color:var(--red);background:#1f1010;}
+.scan-zone.ok-p .sz-icon{border-color:var(--purple);color:var(--purple-light);background:#12101f;}
+.sz-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:3px;}
+.sz-sub{font-size:11px;color:var(--faint);}
+.scan-zone.scanning .sz-title{color:var(--yellow);}
+.scan-zone.ok-g .sz-title{color:var(--green);}
+.scan-zone.ok-r .sz-title{color:var(--red);}
+.scan-zone.ok-p .sz-title{color:var(--purple-light);}
+.scan-zone.ok-y .sz-title{color:var(--yellow);}
+
+/* ─── BANNERS ─── */
+.banner{border-radius:4px;padding:16px;margin-bottom:12px;text-align:center;position:relative;overflow:hidden;border:2px solid;}
+.banner::before{position:absolute;font-family:'Black Han Sans',sans-serif;font-size:90px;opacity:0.06;top:-10px;right:-5px;line-height:1;}
+.banner-it{border-color:var(--yellow);background:#1a1500;}
+.banner-it::before{content:'IT';color:var(--yellow);}
+.banner-hunter{border-color:var(--red);background:#1f1010;}
+.banner-hunter::before{content:'HUNT';color:var(--red);}
+.banner-mafia{border-color:var(--purple);background:#12101f;}
+.banner-mafia::before{content:'MAFIA';color:var(--purple);}
+.banner-lbl{font-size:9px;letter-spacing:4px;text-transform:uppercase;margin-bottom:3px;opacity:0.7;}
+.banner-it .banner-lbl{color:var(--yellow);}
+.banner-hunter .banner-lbl{color:var(--red);}
+.banner-mafia .banner-lbl{color:var(--purple-light);}
+.banner-name{font-family:'Black Han Sans',sans-serif;font-size:34px;line-height:1;}
+.banner-it .banner-name{color:var(--yellow);}
+.banner-hunter .banner-name{color:var(--red);}
+.banner-mafia .banner-name{color:var(--purple-light);}
+
+/* ─── PLAYER GRID ─── */
+.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
+.p-card{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:11px;position:relative;}
+.p-card .pc-name{font-size:13px;font-weight:700;margin-bottom:3px;}
+.p-card .pc-status{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);}
+.p-card.c-it{border-color:var(--yellow);background:#1a1500;} .p-card.c-it .pc-status{color:var(--yellow);}
+.p-card.c-hunter{border-color:var(--red);background:#1f1010;} .p-card.c-hunter .pc-status{color:var(--red);}
+.p-card.c-alive .pc-status{color:var(--green);}
+.p-card.c-mafia{border-color:var(--purple);background:#12101f;} .p-card.c-mafia .pc-status{color:var(--purple-light);}
+.p-card.c-elim{opacity:0.3;border-color:var(--bg3);}
+.p-card.c-trap{border-color:var(--yellow);background:#1a1500;}
+.p-card.c-safe{border-color:var(--green);background:#101a10;}
+.p-card .pc-badge{position:absolute;top:9px;right:9px;font-size:13px;}
+.p-card .pc-score{position:absolute;bottom:8px;right:10px;font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--faint);}
+
+/* ─── LOG ─── */
+.evt-log{background:#0a0a0a;border:1px solid var(--border2);border-radius:4px;padding:9px;max-height:110px;overflow-y:auto;margin-bottom:10px;}
+.log-entry{font-size:10px;color:var(--faint);padding:4px 0;border-bottom:1px solid #111;display:flex;justify-content:space-between;}
+.log-entry:last-child{border-bottom:none;}
+.log-entry .la{color:var(--muted);}
+.log-entry .lt{color:var(--faint);font-size:9px;min-width:36px;text-align:right;}
+.log-entry.et .la{color:var(--red);}
+.log-entry.es .la{color:var(--green);}
+.log-entry.ep .la{color:var(--yellow);}
+.log-entry.em .la{color:var(--purple-light);}
+.log-entry.ev .la{color:#60a5fa;}
+
+/* ─── DIVIDER ─── */
+.divider{height:1px;background:var(--border2);margin:14px 0;}
+
+/* ─── RESULT ─── */
+.result-banner{text-align:center;padding:22px;border-radius:4px;margin-bottom:14px;border:2px solid;}
+.result-banner .rb-lbl{font-size:9px;letter-spacing:4px;text-transform:uppercase;margin-bottom:5px;}
+.result-banner .rb-big{font-family:'Black Han Sans',sans-serif;font-size:40px;line-height:1;}
+.res-r{background:#1f1010;border-color:var(--red);} .res-r .rb-lbl,.res-r .rb-big{color:var(--red);}
+.res-g{background:#101a10;border-color:var(--green);} .res-g .rb-lbl,.res-g .rb-big{color:var(--green);}
+.res-p{background:#12101f;border-color:var(--purple);} .res-p .rb-lbl,.res-p .rb-big{color:var(--purple-light);}
+.res-y{background:#1a1500;border-color:var(--yellow);} .res-y .rb-lbl,.res-y .rb-big{color:var(--yellow);}
+.res-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.res-row{display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;}
+.res-row .ri{width:22px;text-align:center;font-size:14px;}
+.res-row .rn{flex:1;font-size:13px;font-weight:700;}
+.res-row .rs{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}
+.res-row.sv .rs{color:var(--green);} .res-row.el .rs{color:var(--red);}
+
+/* ─── MAFIA PHASE ─── */
+.phase-banner{text-align:center;padding:11px;border-radius:4px;margin-bottom:12px;border:1px solid;}
+.phase-day{background:#1a1500;border-color:#3a2800;color:var(--yellow);}
+.phase-night{background:#12101f;border-color:#2a1f4f;color:var(--purple-light);}
+.phase-banner .ph-lbl{font-size:9px;letter-spacing:4px;text-transform:uppercase;margin-bottom:3px;opacity:0.7;}
+.phase-banner .ph-title{font-family:'Black Han Sans',sans-serif;font-size:28px;}
+.vote-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.vote-row{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;}
+.vote-row .vn{font-size:13px;font-weight:700;}
+.vote-row .vv{font-family:'Black Han Sans',sans-serif;font-size:22px;color:#60a5fa;}
+.vote-btn{font-family:'Space Mono',monospace;font-size:10px;background:#1a1a2a;color:#60a5fa;border:1px solid #2a2a4a;border-radius:3px;padding:5px 10px;cursor:pointer;}
+
+/* ─── ROLE REVEAL ─── */
+.role-reveal{background:var(--bg2);border:2px solid var(--border);border-radius:4px;padding:18px;text-align:center;margin-bottom:8px;cursor:pointer;transition:transform 0.1s;}
+.role-reveal:active{transform:scale(0.98);}
+.rv-top{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:6px;}
+.rv-big{font-family:'Black Han Sans',sans-serif;font-size:28px;}
+.rv-desc{font-size:11px;color:var(--dim);margin-top:5px;line-height:1.5;}
+.rv-tap{font-size:9px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin-top:8px;}
+
+/* ─── SPECTATOR ─── */
+.live-pill{display:inline-flex;align-items:center;gap:5px;background:#1f1010;border:1px solid #3a1010;border-radius:3px;padding:5px 10px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.live-text{font-size:9px;letter-spacing:2px;color:var(--red);text-transform:uppercase;font-weight:700;}
+.spec-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+.spec-table th{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border2);}
+.spec-table td{padding:10px;border-bottom:1px solid #111;font-size:12px;vertical-align:middle;}
+.spec-table tr:last-child td{border-bottom:none;}
+.rank{font-family:'Black Han Sans',sans-serif;font-size:20px;color:var(--border);min-width:24px;display:inline-block;}
+.rank.r1{color:var(--yellow);} .rank.r2{color:var(--muted);} .rank.r3{color:#7a4a20;}
+.status-pill{display:inline-block;font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:3px 7px;border-radius:2px;border:1px solid;}
+.sp-alive{background:#101a10;color:var(--green);border-color:#1e3a1e;}
+.sp-it{background:#1a1500;color:var(--yellow);border-color:#3a2800;}
+.sp-hunter{background:#1f1010;color:var(--red);border-color:#3f1010;}
+.sp-elim{background:var(--bg3);color:var(--faint);border-color:var(--border2);}
+.sp-mafia{background:#12101f;color:var(--purple-light);border-color:#2a1f4f;}
+.spec-score{font-family:'Black Han Sans',sans-serif;font-size:20px;}
+
+/* ─── ROLE EDITOR ─── */
+.roles-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.re-card{border-radius:4px;padding:12px;border:2px solid;cursor:pointer;transition:transform 0.1s;position:relative;}
+.re-card:active{transform:scale(0.97);}
+.re-card.disabled{opacity:0.35;}
+.re-card .rc-icon{font-size:18px;margin-bottom:4px;}
+.re-card .rc-name{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.re-card .rc-team{font-size:8px;letter-spacing:2px;text-transform:uppercase;opacity:0.6;margin-bottom:5px;}
+.re-card .rc-desc{font-size:10px;line-height:1.45;opacity:0.75;}
+.re-card .rc-toggle{position:absolute;top:9px;right:9px;font-size:10px;font-weight:700;letter-spacing:1px;}
+.re-card .rc-cnt-row{display:flex;align-items:center;gap:6px;margin-top:8px;}
+.re-card .rc-cnt-row label{font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.cnt-btns{display:flex;gap:4px;align-items:center;}
+.cnt-b{font-family:'Space Mono',monospace;font-size:11px;background:#0d0d0d;border:1px solid var(--faint);border-radius:2px;color:var(--text);width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cnt-n{font-family:'Black Han Sans',sans-serif;font-size:18px;min-width:18px;text-align:center;}
+.re-mafia{background:#12101f;border-color:#3a2a5a;color:var(--purple-light);}
+.re-town{background:#101a10;border-color:#1e3a1e;color:var(--green);}
+.re-detect{background:#101020;border-color:#1e2a4a;color:#60a5fa;}
+.re-doctor{background:#1a1500;border-color:#3a2800;color:var(--yellow);}
+.re-vigilante{background:#1f1010;border-color:#4f1010;color:var(--red);}
+.re-jester{background:#1a0f1a;border-color:#3a1f3a;color:var(--pink);}
+.re-sheriff{background:#1a1000;border-color:#3a2000;color:var(--orange);}
+.re-bodyguard{background:#101520;border-color:#1e2a40;color:#80b0ff;}
+.re-spy{background:#0f151a;border-color:#1e2a30;color:var(--teal);}
+.re-witch{background:#1a0f10;border-color:#3a1f20;color:#ff80a0;}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.preset-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:13px;cursor:pointer;}
+.preset-card:hover{border-color:var(--dim);}
+.preset-card .pn{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.preset-card .pp{font-size:10px;color:var(--dim);margin-bottom:7px;}
+.preset-card .pr{display:flex;flex-wrap:wrap;gap:3px;}
+.tiny-pill{font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 5px;border-radius:2px;border:1px solid;}
+.bal-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:12px;margin-bottom:12px;}
+.bal-labels{display:flex;justify-content:space-between;font-size:10px;margin-bottom:7px;}
+.bal-track{background:var(--bg3);border-radius:2px;height:7px;overflow:hidden;}
+.bal-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.4s;}
+.bal-verdict{font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-top:7px;text-align:center;}
+.sum-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.sum-row{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;}
+.sum-row .sl{display:flex;align-items:center;gap:10px;}
+.sum-row .si{font-size:16px;width:20px;text-align:center;}
+.sum-row .sn{font-size:12px;font-weight:700;}
+.sum-row .sa{font-size:9px;color:var(--faint);margin-top:2px;}
+.sum-row .sc{font-family:'Black Han Sans',sans-serif;font-size:20px;}
+
+/* ─── HUB CARDS ─── */
+.hub-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.hub-card{border-radius:4px;padding:20px;cursor:pointer;border:2px solid;position:relative;overflow:hidden;transition:transform 0.1s;}
+.hub-card:active{transform:scale(0.98);}
+.hub-card::before{position:absolute;font-family:'Black Han Sans',sans-serif;font-size:80px;opacity:0.06;top:-10px;right:-5px;line-height:1;}
+.hub-tag{background:#1a1500;border-color:#3a2800;} .hub-tag::before{content:'TAG';color:var(--yellow);}
+.hub-run{background:#1f1010;border-color:#3f1010;} .hub-run::before{content:'RUN';color:var(--red);}
+.hub-mafia{background:#12101f;border-color:#2a1f4f;} .hub-mafia::before{content:'WOLF';color:var(--purple);}
+.hub-card .hc-title{font-family:'Black Han Sans',sans-serif;font-size:28px;margin-bottom:3px;}
+.hub-tag .hc-title{color:var(--yellow);} .hub-run .hc-title{color:var(--red);} .hub-mafia .hc-title{color:var(--purple-light);}
+.hub-card .hc-sub{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.hub-card .hc-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+.hub-card .hc-arrow{position:absolute;bottom:16px;right:18px;font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--faint);}
+
+/* ─── NFC GUIDE ─── */
+.guide-tabs{display:flex;gap:5px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
+.gtab{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--dim);padding:6px 11px;cursor:pointer;white-space:nowrap;}
+.gtab.active{background:var(--yellow);color:#0d0d0d;border-color:var(--yellow);}
+.gtab-content{display:none;} .gtab-content.active{display:block;}
+.code-block{background:#070707;border:1px solid var(--border2);border-radius:4px;padding:13px;font-family:'Space Mono',monospace;font-size:10px;color:#c8c8b0;overflow-x:auto;margin:8px 0;line-height:1.7;}
+.ck{color:var(--red);} .cf{color:var(--yellow);} .cs{color:var(--green);} .cc{color:var(--faint);} .ct{color:var(--purple-light);}
+.guide-step{background:var(--bg2);border-left:3px solid var(--yellow);border-radius:0 4px 4px 0;padding:12px 14px;margin-bottom:10px;}
+.guide-step.gs-r{border-left-color:var(--red);} .guide-step.gs-g{border-left-color:var(--green);} .guide-step.gs-p{border-left-color:var(--purple-light);}
+.guide-step h4{font-size:10px;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.guide-step.gs-r h4{color:var(--red);} .guide-step.gs-g h4{color:var(--green);} .guide-step.gs-p h4{color:var(--purple-light);}
+.guide-step p{font-size:11px;color:var(--muted);line-height:1.6;}
+.compat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.compat-box{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:12px;text-align:center;}
+.compat-box .ci{font-size:20px;margin-bottom:5px;}
+.compat-box .cn{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.compat-box .cs2{font-size:10px;font-weight:700;}
+.c-yes{color:var(--green);} .c-no{color:var(--red);}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(80px);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:9px 18px;border-radius:4px;letter-spacing:1px;transition:transform 0.3s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast-y{background:var(--yellow);color:#0d0d0d;}
+.toast-r{background:var(--red);color:#fff;}
+.toast-g{background:var(--green);color:#fff;}
+.toast-p{background:var(--purple);color:#fff;}
+
+/* ─── MISC ─── */
+.info-box{background:#101a10;border:1px solid #1e3a1e;border-radius:4px;padding:11px 13px;margin-bottom:10px;font-size:11px;color:var(--green);line-height:1.6;}
+.warn-box{background:#1a1000;border:1px solid #3a2000;border-radius:4px;padding:11px 13px;margin-bottom:10px;font-size:11px;color:var(--orange);line-height:1.6;}
+.section-spacer{margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+<!-- ═══════════════════════════════════════════
+     HUB
+═══════════════════════════════════════════ -->
+<div class="screen active" id="screen-hub">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+    <div>
+      <div class="logo" style="font-size:38px;color:var(--yellow);">NFC<span style="color:var(--red);">STREET</span></div>
+      <div class="tagline">// tap. tag. survive.</div>
+    </div>
+    <div id="nfc-status-badge" style="font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid;margin-top:4px;"></div>
+  </div>
+  <div class="label">// Choose Mode</div>
+  <div style="margin-bottom:10px;"></div>
+  <div class="hub-cards">
+    <div class="hub-card hub-tag" onclick="goSetup('tag')">
+      <div class="hc-title">TAG!</div>
+      <div class="hc-sub">Classic · Freeze · Timed</div>
+      <div class="hc-desc">One player is IT. Tag others by scanning their NFC card. Fewest tags wins.</div>
+      <div class="hc-arrow">→</div>
+    </div>
+    <div class="hub-card hub-run" onclick="goSetup('run')">
+      <div class="hc-title">RUNNING MAN</div>
+      <div class="hc-sub">1 Hunter · Many Runners</div>
+      <div class="hc-desc">Survive the timer. Use safe zones &amp; trap cards to outsmart the hunter.</div>
+      <div class="hc-arrow">→</div>
+    </div>
+    <div class="hub-card hub-mafia" onclick="goSetup('mafia')">
+      <div class="hc-title">MAFIA / WEREWOLF</div>
+      <div class="hc-sub">Hidden Roles · Day &amp; Night</div>
+      <div class="hc-desc">Mafia hides among town. NFC reveals roles secretly. Deceive, vote, survive.</div>
+      <div class="hc-arrow">→</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div style="text-align:center;font-size:10px;color:var(--faint);letter-spacing:1px;">v2.0 // Single-file deployable app</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SHARED SETUP
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-setup">
+  <button class="btn-back" onclick="showScreen('screen-hub')">← Hub</button>
+  <div class="logo" id="setup-logo" style="font-size:32px;color:var(--yellow);margin-bottom:2px;"></div>
+  <div class="tagline" id="setup-tagline" style="margin-bottom:16px;"></div>
+  <div class="label">// Players</div>
+  <div style="margin-bottom:8px;"></div>
+  <div class="card">
+    <div class="row"><input type="text" id="p-input" placeholder="Player name..." maxlength="16"/><button class="btn-add" onclick="addPlayer()">+ ADD</button></div>
+    <div id="player-list"></div>
+  </div>
+  <div id="tag-opts">
+    <div class="label">// Tag Mode</div><div style="margin-bottom:8px;"></div>
+    <div class="settings-row"><label>Mode</label><div class="toggle-row"><button class="topt ay" onclick="pickOpt(this,'tagMode','classic')">Classic</button><button class="topt" onclick="pickOpt(this,'tagMode','freeze')">Freeze</button><button class="topt" onclick="pickOpt(this,'tagMode','timed')">Timed</button></div></div>
+    <div class="settings-row" id="tag-timer-row" style="display:none;"><label>Round Time</label><div class="toggle-row"><button class="topt ay" onclick="pickOpt(this,'tagTimer',120)">2m</button><button class="topt" onclick="pickOpt(this,'tagTimer',180)">3m</button><button class="topt" onclick="pickOpt(this,'tagTimer',300)">5m</button></div></div>
+  </div>
+  <div id="run-opts" style="display:none;">
+    <div class="label">// Hunt Settings</div><div style="margin-bottom:8px;"></div>
+    <div class="settings-row"><label>Hunter</label><select id="hunter-sel"><option value="">Random</option></select></div>
+    <div class="settings-row"><label>Survival Time</label><div class="toggle-row"><button class="topt ar" onclick="pickOpt(this,'runTimer',120)">2m</button><button class="topt" onclick="pickOpt(this,'runTimer',180)">3m</button><button class="topt" onclick="pickOpt(this,'runTimer',300)">5m</button><button class="topt" onclick="pickOpt(this,'runTimer',600)">10m</button></div></div>
+    <div class="settings-row"><label>Trap Cards</label><div class="toggle-row"><button class="topt" onclick="pickOpt(this,'traps',0)">0</button><button class="topt ar" onclick="pickOpt(this,'traps',2)">2</button><button class="topt" onclick="pickOpt(this,'traps',4)">4</button></div></div>
+    <div class="settings-row"><label>Safe Zones</label><div class="toggle-row"><button class="topt" onclick="pickOpt(this,'safeZ',0)">0</button><button class="topt ar" onclick="pickOpt(this,'safeZ',2)">2</button><button class="topt" onclick="pickOpt(this,'safeZ',4)">4</button></div></div>
+  </div>
+  <div id="mafia-opts" style="display:none;">
+    <div class="label">// Role Settings</div><div style="margin-bottom:8px;"></div>
+    <div class="settings-row"><label>Mafia Count</label><div class="toggle-row"><button class="topt ap" onclick="pickOpt(this,'mafiaCount',1)">1</button><button class="topt" onclick="pickOpt(this,'mafiaCount',2)">2</button><button class="topt" onclick="pickOpt(this,'mafiaCount',3)">3</button></div></div>
+    <div class="settings-row"><label>Special Roles</label><div class="toggle-row"><button class="topt ap" id="tog-det" onclick="toggleSp('detective')">Detective</button><button class="topt ap" id="tog-doc" onclick="toggleSp('doctor')">Doctor</button><button class="topt" id="tog-vig" onclick="toggleSp('vigilante')">Vigilante</button><button class="topt" id="tog-jest" onclick="toggleSp('jester')">Jester</button><button class="topt" id="tog-sher" onclick="toggleSp('sheriff')">Sheriff</button><button class="topt" id="tog-bg" onclick="toggleSp('bodyguard')">Bodyguard</button><button class="topt" id="tog-spy" onclick="toggleSp('spy')">Spy</button><button class="topt" id="tog-witch" onclick="toggleSp('witch')">Witch</button></div></div>
+    <div class="settings-row"><label>Discussion</label><div class="toggle-row"><button class="topt ap" onclick="pickOpt(this,'discuss',60)">1m</button><button class="topt" onclick="pickOpt(this,'discuss',120)">2m</button><button class="topt" onclick="pickOpt(this,'discuss',180)">3m</button></div></div>
+  </div>
+  <button class="btn btn-lg btn-y" id="start-btn" onclick="startGame()" disabled>START GAME →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TAG GAME
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-tag">
+  <button class="btn-back" onclick="endGame('manual')">← End Game</button>
+  <div class="stat-strip s3">
+    <div class="stat-box"><div class="sb-lbl">Round</div><div class="sb-val vy" id="tg-round">1</div></div>
+    <div class="stat-box"><div class="sb-lbl">Total Tags</div><div class="sb-val vr" id="tg-total">0</div></div>
+    <div class="stat-box"><div class="sb-lbl">Players</div><div class="sb-val vy" id="tg-count">0</div></div>
+  </div>
+  <div class="timer-wrap" id="tg-timer-wrap" style="display:none;"><div class="timer-big" id="tg-timer">2:00</div><div class="timer-lbl">// time remaining</div></div>
+  <div class="banner banner-it"><div class="banner-lbl">// Currently IT</div><div class="banner-name" id="tg-it-name">—</div></div>
+  <div class="p-grid" id="tg-grid"></div>
+  <div class="label">// Tap to Tag</div><div style="margin-bottom:8px;"></div>
+  <div class="scan-zone" id="tg-scan" onclick="tagScan()">
+    <div class="sz-icon" id="tg-sz-icon">◈</div>
+    <div class="sz-title" id="tg-sz-title">SCAN NFC CARD</div>
+    <div class="sz-sub" id="tg-sz-sub">IT player: tap phone to another player's card</div>
+  </div>
+  <div class="evt-log" id="tg-log"></div>
+  <button class="btn btn-md btn-ghost" onclick="endGame('manual')">END GAME</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     RUNNING MAN
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-run">
+  <button class="btn-back" onclick="endGame('manual')">← End Game</button>
+  <div class="stat-strip s3">
+    <div class="stat-box"><div class="sb-lbl">Hunter</div><div class="sb-val vr" id="rm-hunter-stat" style="font-size:13px;padding-top:5px;">—</div></div>
+    <div class="stat-box"><div class="sb-lbl">Alive</div><div class="sb-val vg" id="rm-alive">0</div></div>
+    <div class="stat-box"><div class="sb-lbl">Tags</div><div class="sb-val vy" id="rm-tags">0</div></div>
+  </div>
+  <div class="timer-wrap"><div class="timer-big" id="rm-timer">2:00</div><div class="timer-lbl">// runners must survive</div></div>
+  <div class="banner banner-hunter"><div class="banner-lbl">// The Hunter</div><div class="banner-name" id="rm-hunter-name">—</div></div>
+  <div class="label">// Runners</div><div style="margin-bottom:8px;"></div>
+  <div class="p-grid" id="rm-grid"></div>
+  <div class="settings-row" style="margin-bottom:8px;">
+    <label>Scan Mode</label>
+    <div class="toggle-row">
+      <button class="topt ar" id="rm-m-tag" onclick="rmMode('tag')">Tag</button>
+      <button class="topt" id="rm-m-safe" onclick="rmMode('safe')">Safe Zone</button>
+      <button class="topt" id="rm-m-trap" onclick="rmMode('trap')">Trap</button>
+    </div>
+  </div>
+  <div class="scan-zone" id="rm-scan" onclick="rmScan()">
+    <div class="sz-icon" id="rm-sz-icon">◈</div>
+    <div class="sz-title" id="rm-sz-title">SCAN NFC CARD</div>
+    <div class="sz-sub" id="rm-sz-sub">Hunter: tap phone to a runner's card</div>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;">
+    <div style="flex:1;background:#101a10;border:1px solid #1e3a1e;border-radius:4px;padding:9px;text-align:center;cursor:pointer;" onclick="rmMode('safe')">
+      <div style="font-size:8px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Safe Zones</div>
+      <div style="font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--green);" id="rm-safe-cnt">0</div>
+    </div>
+    <div style="flex:1;background:#1a1500;border:1px solid #3a2800;border-radius:4px;padding:9px;text-align:center;cursor:pointer;" onclick="rmMode('trap')">
+      <div style="font-size:8px;color:var(--yellow);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Trap Cards</div>
+      <div style="font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--yellow);" id="rm-trap-cnt">0</div>
+    </div>
+  </div>
+  <div class="evt-log" id="rm-log"></div>
+  <button class="btn btn-md btn-ghost" onclick="endGame('manual')">END GAME</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAFIA ROLE REVEAL
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-mafia-reveal">
+  <div class="logo" style="font-size:30px;color:var(--purple-light);margin-bottom:2px;">MAFIA</div>
+  <div class="tagline" style="margin-bottom:16px;">// Tap your card to reveal your role — keep it secret!</div>
+  <div class="label">// Role Reveal</div><div style="margin-bottom:8px;"></div>
+  <div id="reveal-list"></div>
+  <button class="btn btn-lg btn-p" onclick="startMafiaGame()">ALL REVEALED — START →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAFIA GAME
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-mafia">
+  <button class="btn-back" onclick="endGame('manual')">← End Game</button>
+  <div class="phase-banner" id="mf-phase-banner"><div class="ph-lbl">// Phase</div><div class="ph-title" id="mf-phase-title">DAY 1</div></div>
+  <div class="stat-strip s3">
+    <div class="stat-box"><div class="sb-lbl">Day</div><div class="sb-val vy" id="mf-day">1</div></div>
+    <div class="stat-box"><div class="sb-lbl">Town</div><div class="sb-val vg" id="mf-town">0</div></div>
+    <div class="stat-box"><div class="sb-lbl">Mafia</div><div class="sb-val vp" id="mf-mafia">0</div></div>
+  </div>
+  <!-- DAY -->
+  <div id="mf-day-panel">
+    <div class="timer-wrap"><div class="timer-big" id="mf-timer">1:00</div><div class="timer-lbl">// discussion time</div></div>
+    <div class="label">// Players</div><div style="margin-bottom:8px;"></div>
+    <div class="p-grid" id="mf-grid"></div>
+    <div class="label">// Vote to Eliminate</div><div style="margin-bottom:8px;"></div>
+    <div class="vote-list" id="vote-list"></div>
+    <button class="btn btn-lg btn-r" onclick="executeVote()">EXECUTE VOTE →</button>
+  </div>
+  <!-- NIGHT -->
+  <div id="mf-night-panel" style="display:none;">
+    <div class="label">// Night Actions</div><div style="margin-bottom:8px;"></div>
+    <div id="mf-night-guide" class="card" style="margin-bottom:10px;font-size:11px;color:var(--muted);line-height:1.7;"></div>
+    <div class="scan-zone" id="mf-scan" onclick="mfNightScan()">
+      <div class="sz-icon" id="mf-sz-icon">◈</div>
+      <div class="sz-title" id="mf-sz-title">NIGHT ACTIONS — SCAN TARGET</div>
+      <div class="sz-sub" id="mf-sz-sub">Each role scans their target in turn — pass phone secretly</div>
+    </div>
+    <div class="evt-log" id="mf-log"></div>
+    <button class="btn btn-lg btn-p" id="mf-dawn-btn" onclick="resolveDawn()" style="display:none;">DAWN — START DAY →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     RESULTS
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div class="result-banner" id="res-banner"><div class="rb-lbl" id="res-lbl">—</div><div class="rb-big" id="res-big">—</div></div>
+  <div class="label">// Final Standings</div><div style="margin-bottom:8px;"></div>
+  <div class="res-list" id="res-list"></div>
+  <div class="divider"></div>
+  <button class="btn btn-lg btn-y" onclick="playAgain()">PLAY AGAIN</button>
+  <button class="btn btn-md btn-outline-y" onclick="showScreen('screen-hub')">← HUB</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SPECTATOR
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-spectator">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div><div class="logo" style="font-size:26px;color:var(--yellow);">SPECTATOR</div><div class="tagline">// Live scoreboard</div></div>
+    <div class="live-pill"><div class="live-dot"></div><div class="live-text">Live</div></div>
+  </div>
+  <div style="display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;">
+    <button class="topt ay" id="spec-tag-btn" onclick="specMode('tag',this)">TAG!</button>
+    <button class="topt" id="spec-run-btn" onclick="specMode('run',this)">Running Man</button>
+    <button class="topt" id="spec-mafia-btn" onclick="specMode('mafia',this)">Mafia</button>
+  </div>
+  <div id="spec-body"></div>
+  <div class="label">// Event Log</div><div style="margin-bottom:8px;"></div>
+  <div class="evt-log" id="spec-log" style="max-height:130px;"></div>
+  <button class="btn btn-sm btn-ghost" style="margin-top:8px;" onclick="specSimEvent()">+ Simulate Event</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ROLE EDITOR
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-roles">
+  <div class="logo" style="font-size:28px;color:var(--purple-light);margin-bottom:2px;">ROLE EDITOR</div>
+  <div class="tagline" style="margin-bottom:14px;">// Custom Mafia / Werewolf roles</div>
+  <div style="display:flex;gap:5px;margin-bottom:14px;">
+    <button class="topt ap" id="re-tab-roles" onclick="reTab('roles')">Roles</button>
+    <button class="topt" id="re-tab-presets" onclick="reTab('presets')">Presets</button>
+    <button class="topt" id="re-tab-summary" onclick="reTab('summary')">Summary</button>
+  </div>
+  <div id="re-roles" class="re-tab-content">
+    <div class="label">// Core Roles</div><div style="margin-bottom:8px;"></div>
+    <div class="roles-grid-2" id="core-grid"></div>
+    <div class="label section-spacer">// Special Roles</div><div style="margin-bottom:8px;"></div>
+    <div class="roles-grid-2" id="special-grid"></div>
+  </div>
+  <div id="re-presets" class="re-tab-content" style="display:none;">
+    <div class="label">// Quick Presets</div><div style="margin-bottom:8px;"></div>
+    <div class="preset-grid" id="preset-grid"></div>
+    <div class="info-box">Selecting a preset overwrites your current role config. Fine-tune in Roles tab after.</div>
+  </div>
+  <div id="re-summary" class="re-tab-content" style="display:none;">
+    <div class="label">// Balance</div><div style="margin-bottom:8px;"></div>
+    <div class="bal-wrap">
+      <div class="bal-labels"><span style="color:var(--green);">Town Power</span><span style="color:var(--purple-light);">Mafia Power</span></div>
+      <div class="bal-track"><div class="bal-fill" id="bal-fill" style="width:60%;"></div></div>
+      <div class="bal-verdict" id="bal-verdict"></div>
+    </div>
+    <div class="label">// Active Roles</div><div style="margin-bottom:8px;"></div>
+    <div class="sum-list" id="sum-list"></div>
+    <button class="btn btn-md btn-p" onclick="copyRoles()">COPY ROLE LIST</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     NFC GUIDE
+═══════════════════════════════════════════ -->
+<div class="screen" id="screen-guide">
+  <div class="logo" style="font-size:26px;color:var(--yellow);margin-bottom:2px;">NFC GUIDE</div>
+  <div class="tagline" style="margin-bottom:14px;">// Cross-platform integration</div>
+  <div class="guide-tabs">
+    <button class="gtab active" onclick="gTab('overview',this)">Overview</button>
+    <button class="gtab" onclick="gTab('web',this)">Web NFC</button>
+    <button class="gtab" onclick="gTab('rn',this)">React Native</button>
+    <button class="gtab" onclick="gTab('hardware',this)">Hardware</button>
+    <button class="gtab" onclick="gTab('code',this)">Integration</button>
+  </div>
+  <div id="guide-body"></div>
+</div>
+
+</div><!-- .app -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-item active" id="nav-hub" onclick="navTo('hub')"><div class="nav-icon">⬡</div><div class="nav-label">Hub</div></div>
+  <div class="nav-item" id="nav-spectator" onclick="navTo('spectator')"><div class="nav-icon">👁</div><div class="nav-label">Spectator</div></div>
+  <div class="nav-item" id="nav-roles" onclick="navTo('roles')"><div class="nav-icon">🃏</div><div class="nav-label">Roles</div></div>
+  <div class="nav-item" id="nav-guide" onclick="navTo('guide')"><div class="nav-icon">◈</div><div class="nav-label">NFC Guide</div></div>
+</nav>
+
+<div class="toast toast-y" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════
+let gMode = 'tag';
+let players = [];
+let timerInterval = null;
+let timeLeft = 0;
+let cfg = {
+  tagMode:'classic', tagTimer:120,
+  runTimer:120, traps:2, safeZ:2,
+  mafiaCount:1, discuss:60,
+  detective:true, doctor:true, vigilante:false,
+  jester:false, sheriff:false, bodyguard:false, spy:false, witch:false
+};
+
+// TAG state
+let tagItIdx = 0, tagTotal = 0, tagRound = 1;
+
+// RUN state
+let rmHunter = '', rmTags = 0, rmTrapsLeft = 0, rmSafeLeft = 0, rmScanMode = 'tag';
+let rmSafeTimers = {};
+
+// MAFIA state
+let mfRoles = {}, mfDay = 1, mfPhase = 'day', mfVotes = {};
+let mfNightDone = {}, mfProtected = null, mfNightKill = null, mfSheriffTarget = null;
+
+// SPECTATOR state
+let specCurrentMode = 'tag';
+let specEvts = [];
+const specTagPlayers = [{name:'BLAZE',tagged:1,isIt:true},{name:'GHOST',tagged:3,isIt:false},{name:'NEON',tagged:0,isIt:false},{name:'VIPER',tagged:2,isIt:false}];
+const specRunPlayers = [{name:'BLAZE',role:'hunter',alive:true},{name:'GHOST',role:'runner',alive:true},{name:'NEON',role:'runner',alive:false},{name:'VIPER',role:'runner',alive:true,trapped:true}];
+const specMafPlayers = [{name:'BLAZE',role:'town',alive:true,votes:1},{name:'GHOST',role:'mafia',alive:true,votes:3},{name:'NEON',role:'detective',alive:false,votes:0},{name:'VIPER',role:'town',alive:true,votes:2}];
+let specMafPhase = 'day', specMafDay = 2;
+let specTimerVal = 180, specTimerEl = null;
+
+// ROLE EDITOR state
+const ROLES = {
+  mafia:{label:'Mafia',icon:'🔴',team:'mafia',cls:'re-mafia',desc:'Eliminate town at night. Blend in during day.',count:2,min:1,max:4,core:true,ability:'Night kill'},
+  town:{label:'Town',icon:'🟢',team:'town',cls:'re-town',desc:'Vote out mafia through discussion and deduction.',count:4,min:1,max:8,core:true,ability:'Day vote'},
+  detective:{label:'Detective',icon:'🔵',team:'town',cls:'re-detect',desc:'Each night, investigate a player to learn their role.',count:1,min:0,max:2,core:false,enabled:true,ability:'Night investigate'},
+  doctor:{label:'Doctor',icon:'💛',team:'town',cls:'re-doctor',desc:'Each night, protect one player from elimination.',count:1,min:0,max:2,core:false,enabled:true,ability:'Night protect'},
+  vigilante:{label:'Vigilante',icon:'🔫',team:'town',cls:'re-vigilante',desc:'Once per game: kill at night. Killing a townie = self-destruct at dawn.',count:1,min:0,max:1,core:false,enabled:false,ability:'Once: night kill (kills town = dies)'},
+  jester:{label:'Jester',icon:'🃏',team:'neutral',cls:'re-jester',desc:'Wins only if voted out by town. Acts suspicious.',count:1,min:0,max:1,core:false,enabled:false,ability:'Win = get voted out'},
+  sheriff:{label:'Sheriff',icon:'⭐',team:'town',cls:'re-sheriff',desc:'Starts knowing 1 mafia member\'s identity.',count:1,min:0,max:1,core:false,enabled:false,ability:'Game start: knows 1 mafia'},
+  bodyguard:{label:'Bodyguard',icon:'🛡',team:'town',cls:'re-bodyguard',desc:'Protect a player at night — you die instead, killing the attacker.',count:1,min:0,max:2,core:false,enabled:false,ability:'Night shield — dies for target'},
+  spy:{label:'Spy',icon:'👁',team:'town',cls:'re-spy',desc:'Each night, see who Mafia visited (not what they did).',count:1,min:0,max:1,core:false,enabled:false,ability:'Night track — see Mafia\'s target'},
+  witch:{label:'Witch',icon:'🧙',team:'neutral',cls:'re-witch',desc:'Redirect Mafia\'s kill each night. Wins with whoever survives.',count:1,min:0,max:1,core:false,enabled:false,ability:'Night redirect Mafia kill'},
+};
+const PRESETS = [
+  {name:'Starter',players:'5–7',roles:{mafia:1,town:4,detective:1,doctor:1}},
+  {name:'Classic',players:'8–10',roles:{mafia:2,town:5,detective:1,doctor:1}},
+  {name:'Chaos',players:'10–12',roles:{mafia:2,town:4,detective:1,doctor:1,vigilante:1,jester:1}},
+  {name:'Power Roles',players:'10–14',roles:{mafia:3,town:4,detective:1,doctor:1,sheriff:1,bodyguard:1,spy:1}},
+  {name:'Neutral Heavy',players:'12+',roles:{mafia:2,town:4,detective:1,doctor:1,jester:1,witch:1,vigilante:1}},
+  {name:'The Long Game',players:'14+',roles:{mafia:3,town:5,detective:1,doctor:1,sheriff:1,bodyguard:1,spy:1,vigilante:1,witch:1}},
+];
+
+const ROLE_COLORS = {mafia:'#a78bfa',town:'#4caf50',detective:'#60a5fa',doctor:'#f5e642',vigilante:'#ff3c3c',jester:'#f0a0f0',sheriff:'#ffa020',bodyguard:'#80b0ff',spy:'#00d4d4',witch:'#ff80a0',neutral:'#f0a0f0'};
+function roleColor(k){return ROLE_COLORS[k]||ROLE_COLORS[ROLES[k]?.team]||'#888';}
+
+const NAMES = ['BLAZE','GHOST','NEON','VIPER','ECHO','RAZE','FLUX','CHROME','DUSK','BOLT'];
+
+// ─── UTIL ───
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showToast(msg,type='y'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className=`toast toast-${type} show`;
+  setTimeout(()=>t.className=`toast toast-${type}`,2200);
+}
+function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function addLog(id,msg,cls=''){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const now=new Date();
+  const t=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  const e=document.createElement('div');
+  e.className='log-entry '+(cls||'');
+  e.innerHTML=`<span class="la">${msg}</span><span class="lt">${t}</span>`;
+  el.insertBefore(e,el.firstChild);
+}
+function stopTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+function updateTimerEl(id,s){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=fmt(s);
+  el.className='timer-big'+(s<=30?' danger':s<=60?' warn':'');
+}
+function resetScanZone(z,icon,title,sub,t,s){
+  z.className='scan-zone';
+  document.getElementById(icon).style='';
+  document.getElementById(title).textContent=t;
+  document.getElementById(sub).textContent=s;
+}
+
+// ─── NAV ───
+const NAV_SCREENS = {hub:'screen-hub',spectator:'screen-spectator',roles:'screen-roles',guide:'screen-guide'};
+function navTo(key){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('nav-'+key).classList.add('active');
+  showScreen(NAV_SCREENS[key]);
+  if(key==='spectator') initSpectator();
+  if(key==='roles') initRoleEditor();
+  if(key==='guide') initGuide();
+}
+
+// ─── NFC STATUS ───
+function checkNFC(){
+  const el=document.getElementById('nfc-status-badge');
+  if('NDEFReader' in window){
+    el.textContent='◈ NFC READY';
+    el.style.cssText='background:#101a10;color:#4caf50;border-color:#1e3a1e;';
+  } else {
+    el.textContent='◈ SIMULATED';
+    el.style.cssText='background:#1a1500;color:#f5e642;border-color:#3a2800;';
+  }
+}
+
+// ─── NFC SCANNING ───
+let nfcReader = null, nfcAbort = null;
+let scanCallback = null;
+let lastUID = '', lastScanTime = 0;
+
+async function startNFCScan(cb){
+  scanCallback = cb;
+  if(!('NDEFReader' in window)) return; // simulation handles it
+  try {
+    nfcAbort = new AbortController();
+    nfcReader = new NDEFReader();
+    await nfcReader.scan({signal: nfcAbort.signal});
+    nfcReader.addEventListener('reading', ({serialNumber})=>{
+      const uid = serialNumber.replace(/:/g,'').toUpperCase();
+      const now = Date.now();
+      if(uid===lastUID && now-lastScanTime<800) return;
+      lastUID=uid; lastScanTime=now;
+      if(scanCallback) scanCallback(uid);
+    });
+  } catch(e){}
+}
+function stopNFCScan(){
+  if(nfcAbort){nfcAbort.abort();nfcAbort=null;}
+  scanCallback=null;
+}
+
+// ─── SETUP ───
+function goSetup(mode){
+  gMode=mode;
+  players=[];
+  const logos={tag:'TAG!',run:'RUNNING MAN',mafia:'MAFIA / WEREWOLF'};
+  const taglines={tag:'// Classic NFC Tag Game',run:'// 1 Hunter vs All Runners',mafia:'// Hidden Roles + NFC Reveals'};
+  const colors={tag:'var(--yellow)',run:'var(--red)',mafia:'var(--purple-light)'};
+  document.getElementById('setup-logo').textContent=logos[mode];
+  document.getElementById('setup-logo').style.color=colors[mode];
+  document.getElementById('setup-tagline').textContent=taglines[mode];
+  document.getElementById('tag-opts').style.display=mode==='tag'?'block':'none';
+  document.getElementById('run-opts').style.display=mode==='run'?'block':'none';
+  document.getElementById('mafia-opts').style.display=mode==='mafia'?'block':'none';
+  renderPlayerList(); updateHunterSel(); updateStartBtn();
+  showScreen('screen-setup');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+}
+
+function addPlayer(){
+  const inp=document.getElementById('p-input');
+  const name=(inp.value.trim().toUpperCase())||NAMES[players.length%NAMES.length];
+  if(players.length>=10){showToast('MAX 10 PLAYERS','r');return;}
+  if(players.find(p=>p.name===name)){showToast('NAME TAKEN','r');return;}
+  players.push({name,nfcId:'NFC-'+Math.random().toString(36).slice(2,5).toUpperCase(),alive:true,tagged:0,isIt:false,trapped:false,safe:false,role:'',votes:0,revealed:false});
+  inp.value='';
+  renderPlayerList(); updateHunterSel(); updateStartBtn();
+}
+function removePlayer(i){players.splice(i,1);renderPlayerList();updateHunterSel();updateStartBtn();}
+function renderPlayerList(){
+  const el=document.getElementById('player-list');
+  if(!players.length){el.innerHTML='<div style="font-size:11px;color:var(--faint);text-align:center;padding:8px;">Add at least 2 players</div>';return;}
+  el.innerHTML=players.map((p,i)=>`<div class="player-chip"><span class="pname">${p.name}</span><span class="nfc-pill pill-set">◈ ${p.nfcId}</span><button class="remove-btn" onclick="removePlayer(${i})">✕</button></div>`).join('');
+}
+function updateHunterSel(){
+  const sel=document.getElementById('hunter-sel');
+  if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Random</option>'+players.map(p=>`<option value="${p.name}"${cur===p.name?' selected':''}>${p.name}</option>`).join('');
+}
+function updateStartBtn(){
+  const mins={tag:2,run:2,mafia:3};
+  document.getElementById('start-btn').disabled=players.length<(mins[gMode]||2);
+}
+function pickOpt(el,key,val){
+  const grp=el.parentElement.querySelectorAll('.topt');
+  grp.forEach(b=>{b.classList.remove('ay','ar','ap');});
+  const cls=key==='tagMode'||key==='tagTimer'?'ay':key==='discuss'||key==='mafiaCount'?'ap':'ar';
+  el.classList.add(cls);
+  cfg[key]=val;
+  if(key==='tagMode') document.getElementById('tag-timer-row').style.display=(val==='timed'?'flex':'none');
+}
+function toggleSp(role){
+  cfg[role]=!cfg[role];
+  const map={detective:'det',doctor:'doc',vigilante:'vig',jester:'jest',sheriff:'sher',bodyguard:'bg',spy:'spy',witch:'witch'};
+  const el=document.getElementById('tog-'+map[role]);
+  if(el){el.classList.toggle('ap',cfg[role]);}
+}
+
+// ─── START GAME ───
+function startGame(){
+  stopTimer();
+  if(gMode==='tag') startTagGame();
+  else if(gMode==='run') startRunGame();
+  else startMafiaReveal();
+}
+
+// ═══════════════════════════════════════════
+// TAG GAME
+// ═══════════════════════════════════════════
+function startTagGame(){
+  players.forEach(p=>{p.tagged=0;p.isIt=false;p.alive=true;});
+  tagTotal=0; tagRound=1;
+  tagItIdx=Math.floor(Math.random()*players.length);
+  players[tagItIdx].isIt=true;
+  timeLeft=cfg.tagTimer;
+  document.getElementById('tg-log').innerHTML='';
+  showScreen('screen-tag');
+  const tw=document.getElementById('tg-timer-wrap');
+  tw.style.display=cfg.tagMode==='timed'?'block':'none';
+  renderTagScreen();
+  addLog('tg-log','Game started — '+players[tagItIdx].name+' is IT');
+  if(cfg.tagMode==='timed'){
+    updateTimerEl('tg-timer',timeLeft);
+    timerInterval=setInterval(()=>{timeLeft--;updateTimerEl('tg-timer',timeLeft);if(timeLeft<=0)endGame('timeout');},1000);
+  }
+  startNFCScan(uid=>handleTagNFC(uid));
+}
+function renderTagScreen(){
+  document.getElementById('tg-it-name').textContent=players[tagItIdx].name;
+  document.getElementById('tg-total').textContent=tagTotal;
+  document.getElementById('tg-round').textContent=tagRound;
+  document.getElementById('tg-count').textContent=players.length;
+  document.getElementById('tg-grid').innerHTML=players.map(p=>`
+    <div class="p-card ${p.isIt?'c-it':'c-alive'}">
+      <div class="pc-name">${p.name}</div>
+      <div class="pc-status">${p.isIt?'IT':'safe'}</div>
+      <div class="pc-badge">${p.isIt?'🔴':''}</div>
+      <div class="pc-score">${p.tagged}</div>
+    </div>`).join('');
+}
+function handleTagNFC(uid){
+  const p=players.find(pl=>pl.nfcId===uid||pl.nfcId==='NFC-'+uid.slice(0,3));
+  if(p) doTagAction(p.name);
+}
+function tagScan(){
+  const z=document.getElementById('tg-scan');
+  z.className='scan-zone scanning';
+  document.getElementById('tg-sz-title').textContent='SCANNING...';
+  setTimeout(()=>{
+    const others=players.map((_,i)=>i).filter(i=>i!==tagItIdx);
+    if(!others.length){resetScanZone(z,'tg-sz-icon','tg-sz-title','tg-sz-sub','SCAN NFC CARD','IT player: tap phone to another player\'s card');return;}
+    const ni=others[Math.floor(Math.random()*others.length)];
+    doTagAction(players[ni].name);
+  },700);
+}
+function doTagAction(targetName){
+  const z=document.getElementById('tg-scan');
+  const tagger=players[tagItIdx].name;
+  const ni=players.findIndex(p=>p.name===targetName);
+  if(ni<0||ni===tagItIdx){resetScanZone(z,'tg-sz-icon','tg-sz-title','tg-sz-sub','SCAN NFC CARD','IT player: tap phone to another player\'s card');return;}
+  players[tagItIdx].isIt=false;
+  tagItIdx=ni;
+  players[ni].isIt=true;
+  players[ni].tagged++;
+  tagTotal++; tagRound++;
+  addLog('tg-log',tagger+' tagged '+targetName,'et');
+  showToast(tagger+' → '+targetName,'r');
+  z.className='scan-zone ok-r';
+  document.getElementById('tg-sz-title').textContent=targetName+' IS NOW IT!';
+  document.getElementById('tg-sz-sub').textContent='Tag confirmed';
+  renderTagScreen();
+  setTimeout(()=>resetScanZone(z,'tg-sz-icon','tg-sz-title','tg-sz-sub','SCAN NFC CARD','IT player: tap phone to another player\'s card'),1800);
+}
+
+// ═══════════════════════════════════════════
+// RUNNING MAN
+// ═══════════════════════════════════════════
+function startRunGame(){
+  const sel=document.getElementById('hunter-sel').value;
+  rmHunter=sel||players[Math.floor(Math.random()*players.length)].name;
+  rmTags=0; rmTrapsLeft=cfg.traps; rmSafeLeft=cfg.safeZ; rmScanMode='tag'; rmSafeTimers={};
+  players.forEach(p=>{p.alive=true;p.trapped=false;p.safe=false;});
+  timeLeft=cfg.runTimer;
+  document.getElementById('rm-log').innerHTML='';
+  document.getElementById('rm-hunter-name').textContent=rmHunter;
+  document.getElementById('rm-hunter-stat').textContent=rmHunter.slice(0,5);
+  rmMode('tag');
+  showScreen('screen-run');
+  renderRunScreen();
+  addLog('rm-log','Hunt begins — '+rmHunter+' is hunting');
+  updateTimerEl('rm-timer',timeLeft);
+  timerInterval=setInterval(()=>{timeLeft--;updateTimerEl('rm-timer',timeLeft);if(timeLeft<=0)endGame('timeout');},1000);
+  startNFCScan(uid=>handleRunNFC(uid));
+}
+function renderRunScreen(){
+  const runners=players.filter(p=>p.name!==rmHunter);
+  document.getElementById('rm-alive').textContent=runners.filter(p=>p.alive).length;
+  document.getElementById('rm-tags').textContent=rmTags;
+  document.getElementById('rm-safe-cnt').textContent=rmSafeLeft;
+  document.getElementById('rm-trap-cnt').textContent=rmTrapsLeft;
+  document.getElementById('rm-grid').innerHTML=runners.map(p=>{
+    let cls=p.alive?(p.trapped?'c-trap':p.safe?'c-safe':'c-alive'):'c-elim';
+    let status=p.alive?(p.safe?'safe zone':p.trapped?'trap set':'running'):'eliminated';
+    let badge=p.alive?(p.trapped?'⚡':p.safe?'🛡':''):'✕';
+    return `<div class="p-card ${cls}"><div class="pc-name">${p.name}</div><div class="pc-status">${status}</div><div class="pc-badge">${badge}</div></div>`;
+  }).join('');
+}
+function rmMode(mode){
+  rmScanMode=mode;
+  const z=document.getElementById('rm-scan');
+  const configs={
+    tag:{cls:'',title:'SCAN NFC CARD',sub:'Hunter: tap phone to a runner\'s card',ac:'ar'},
+    safe:{cls:'ok-g',title:'SAFE ZONE SCAN',sub:'Runner: tap phone to a safe zone NFC sticker',ac:'ay'},
+    trap:{cls:'ok-y',title:'ASSIGN TRAP CARD',sub:'Tap to assign a trap card to a random runner',ac:'ay'}
+  };
+  const c=configs[mode];
+  z.className='scan-zone '+c.cls;
+  document.getElementById('rm-sz-title').textContent=c.title;
+  document.getElementById('rm-sz-sub').textContent=c.sub;
+  ['tag','safe','trap'].forEach(m=>{
+    const b=document.getElementById('rm-m-'+m);
+    if(b){b.classList.remove('ar','ay','ap');if(m===mode)b.classList.add(c.ac);}
+  });
+}
+function handleRunNFC(uid){
+  const p=players.find(pl=>pl.nfcId===uid||pl.nfcId==='NFC-'+uid.slice(0,3));
+  if(!p)return;
+  if(rmScanMode==='tag') doRunTag(p.name);
+  else if(rmScanMode==='safe') doRunSafe(p.name);
+}
+function rmScan(){
+  const z=document.getElementById('rm-scan');
+  z.className='scan-zone scanning';
+  document.getElementById('rm-sz-title').textContent='SCANNING...';
+  setTimeout(()=>{
+    if(rmScanMode==='tag') doRunTagSim(z);
+    else if(rmScanMode==='safe') doRunSafeSim(z);
+    else doRunTrapSim(z);
+  },700);
+}
+function doRunTagSim(z){
+  const runners=players.filter(p=>p.name!==rmHunter&&p.alive);
+  if(!runners.length){rmMode('tag');return;}
+  doRunTag(runners[Math.floor(Math.random()*runners.length)].name);
+}
+function doRunTag(targetName){
+  const z=document.getElementById('rm-scan');
+  const target=players.find(p=>p.name===targetName);
+  if(!target||!target.alive||target.name===rmHunter){rmMode('tag');return;}
+  if(target.safe){
+    z.className='scan-zone ok-g';
+    document.getElementById('rm-sz-title').textContent=target.name+' — SAFE ZONE!';
+    document.getElementById('rm-sz-sub').textContent='Cannot tag — protected';
+    showToast(target.name+' IS SAFE!','g');
+    addLog('rm-log',target.name+' is in safe zone','es');
+    setTimeout(()=>rmMode('tag'),1800);return;
+  }
+  if(target.trapped){
+    z.className='scan-zone ok-y';
+    document.getElementById('rm-sz-title').textContent='TRAP! HUNTER ELIMINATED!';
+    document.getElementById('rm-sz-sub').textContent=target.name+'\'s trap triggered!';
+    showToast('⚡ TRAP — HUNTER DOWN!','y');
+    addLog('rm-log','TRAP: '+target.name+' eliminated '+rmHunter+'!','ep');
+    target.trapped=false; stopTimer();
+    setTimeout(()=>endGame('trap'),2000);return;
+  }
+  target.alive=false; rmTags++;
+  z.className='scan-zone ok-r';
+  document.getElementById('rm-sz-title').textContent=target.name+' ELIMINATED!';
+  document.getElementById('rm-sz-sub').textContent='Runner is out';
+  showToast(rmHunter+' TAGGED '+target.name,'r');
+  addLog('rm-log',rmHunter+' eliminated '+target.name,'et');
+  renderRunScreen();
+  if(!players.filter(p=>p.name!==rmHunter&&p.alive).length){stopTimer();setTimeout(()=>endGame('hunter'),1800);return;}
+  setTimeout(()=>rmMode('tag'),1800);
+}
+function doRunSafeSim(z){
+  if(rmSafeLeft<=0){z.className='scan-zone';document.getElementById('rm-sz-title').textContent='NO SAFE ZONES LEFT';setTimeout(()=>rmMode('tag'),1500);return;}
+  const runners=players.filter(p=>p.name!==rmHunter&&p.alive);
+  if(!runners.length){rmMode('tag');return;}
+  doRunSafe(runners[Math.floor(Math.random()*runners.length)].name);
+}
+function doRunSafe(name){
+  const z=document.getElementById('rm-scan');
+  const r=players.find(p=>p.name===name);
+  if(!r||!r.alive){rmMode('tag');return;}
+  r.safe=true; rmSafeLeft--;
+  z.className='scan-zone ok-g';
+  document.getElementById('rm-sz-title').textContent=r.name+' — SAFE! 10s';
+  document.getElementById('rm-sz-sub').textContent='Immune to tagging for 10 seconds';
+  showToast(r.name+' SAFE ZONE','g');
+  addLog('rm-log',r.name+' entered safe zone — 10s immunity','es');
+  renderRunScreen();
+  if(rmSafeTimers[r.name])clearTimeout(rmSafeTimers[r.name]);
+  rmSafeTimers[r.name]=setTimeout(()=>{r.safe=false;renderRunScreen();addLog('rm-log',r.name+' left safe zone','es');},10000);
+  setTimeout(()=>rmMode('tag'),1800);
+}
+function doRunTrapSim(z){
+  if(rmTrapsLeft<=0){z.className='scan-zone';document.getElementById('rm-sz-title').textContent='NO TRAPS LEFT';setTimeout(()=>rmMode('tag'),1500);return;}
+  const runners=players.filter(p=>p.name!==rmHunter&&p.alive&&!p.trapped);
+  if(!runners.length){z.className='scan-zone';document.getElementById('rm-sz-title').textContent='ALL RUNNERS TRAPPED';setTimeout(()=>rmMode('tag'),1500);return;}
+  const r=runners[Math.floor(Math.random()*runners.length)];
+  r.trapped=true; rmTrapsLeft--;
+  z.className='scan-zone ok-y';
+  document.getElementById('rm-sz-title').textContent=r.name+' HOLDS A TRAP!';
+  document.getElementById('rm-sz-sub').textContent='Hunter eliminated if they scan this card';
+  showToast('⚡ TRAP → '+r.name,'y');
+  addLog('rm-log',r.name+' is holding a trap card ⚡','ep');
+  renderRunScreen();
+  setTimeout(()=>rmMode('tag'),1800);
+}
+
+// ═══════════════════════════════════════════
+// MAFIA
+// ═══════════════════════════════════════════
+const ROLE_INFO = {
+  mafia:{label:'MAFIA',color:'#a78bfa',bgcls:'re-mafia',desc:'You are Mafia. Eliminate town at night. Blend in during discussions.'},
+  town:{label:'TOWN',color:'#4caf50',bgcls:'re-town',desc:'You are Town. Find and vote out Mafia through deduction.'},
+  detective:{label:'DETECTIVE',color:'#60a5fa',bgcls:'re-detect',desc:'Each night: scan a player\'s card to learn their role. Keep it secret.'},
+  doctor:{label:'DOCTOR',color:'#f5e642',bgcls:'re-doctor',desc:'Each night: scan a player\'s card to protect them. Cannot self-protect twice in a row.'},
+  vigilante:{label:'VIGILANTE',color:'#ff3c3c',bgcls:'re-vigilante',desc:'Once per game: eliminate a player at night. Kill a townie? You die at dawn.'},
+  jester:{label:'JESTER',color:'#f0a0f0',bgcls:'re-jester',desc:'Win ONLY by getting voted out by the town. Act suspicious. Mafia killing you = you lose.'},
+  sheriff:{label:'SHERIFF',color:'#ffa020',bgcls:'re-sheriff',desc:'You start knowing one Mafia member\'s identity. Use wisely.'},
+  bodyguard:{label:'BODYGUARD',color:'#80b0ff',bgcls:'re-bodyguard',desc:'Each night: protect a player. If Mafia targets them, YOU die — but take the attacker with you.'},
+  spy:{label:'SPY',color:'#00d4d4',bgcls:'re-spy',desc:'Each night: see who Mafia visited (not what they did). Track their movement.'},
+  witch:{label:'WITCH',color:'#ff80a0',bgcls:'re-witch',desc:'Each night: redirect Mafia\'s kill to a different target. Wins with whoever survives.'},
+};
+
+function assignMafiaRoles(){
+  mfRoles={};
+  const shuffled=[...players].sort(()=>Math.random()-0.5);
+  let idx=0;
+  for(let i=0;i<cfg.mafiaCount&&idx<shuffled.length;i++,idx++) mfRoles[shuffled[idx].name]='mafia';
+  const specials=['detective','doctor','vigilante','jester','sheriff','bodyguard','spy','witch'];
+  specials.forEach(r=>{if(cfg[r]&&idx<shuffled.length){mfRoles[shuffled[idx].name]=r;idx++;}});
+  while(idx<shuffled.length){mfRoles[shuffled[idx].name]='town';idx++;}
+}
+
+function startMafiaReveal(){
+  players.forEach(p=>{p.alive=true;p.role='';p.revealed=false;p.votes=0;});
+  mfDay=1; mfPhase='day'; mfVotes={}; mfNightDone={}; mfProtected=null; mfNightKill=null;
+  assignMafiaRoles();
+  // Sheriff: tell who one mafia is
+  const sheriff=Object.entries(mfRoles).find(([n,r])=>r==='sheriff');
+  if(sheriff){
+    const mafiaList=Object.entries(mfRoles).filter(([n,r])=>r==='mafia');
+    if(mafiaList.length){mfSheriffTarget=mafiaList[Math.floor(Math.random()*mafiaList.length)][0];}
+  }
+  renderRevealList();
+  showScreen('screen-mafia-reveal');
+}
+function renderRevealList(){
+  const el=document.getElementById('reveal-list');
+  el.innerHTML=players.map(p=>{
+    const role=mfRoles[p.name];
+    const info=ROLE_INFO[role];
+    const revealed=p.revealed;
+    return `<div class="role-reveal ${revealed?'re-card '+info.bgcls:''}" id="rv-${p.name}" onclick="revealRole('${p.name}')" style="${revealed?'border:2px solid '+info.color+';':''}">
+      <div class="rv-top">${p.name}${revealed?' — revealed':' — tap to reveal'}</div>
+      ${revealed?`<div class="rv-big" style="color:${info.color};">${info.label}</div><div class="rv-desc">${info.desc}${role==='sheriff'&&p.name===Object.entries(mfRoles).find(([n,r])=>r==='sheriff')?.[0]?'<br><strong style="color:#ffa020;">You know: '+mfSheriffTarget+' is MAFIA</strong>':''}</div>`
+      :'<div class="rv-tap">◈ tap NFC card or press to reveal</div>'}
+    </div>`;
+  }).join('');
+}
+function revealRole(name){
+  const p=players.find(pl=>pl.name===name);
+  if(p.revealed)return;
+  p.revealed=true;
+  const role=mfRoles[name]; const info=ROLE_INFO[role];
+  showToast(name+' — '+info.label,'p');
+  renderRevealList();
+}
+function startMafiaGame(){
+  document.getElementById('mf-log').innerHTML='';
+  showScreen('screen-mafia');
+  startDay();
+  startNFCScan(uid=>handleMafiaNFC(uid));
+}
+function startDay(){
+  mfPhase='day'; stopTimer();
+  mfVotes={}; players.filter(p=>p.alive).forEach(p=>{mfVotes[p.name]=0;});
+  mfNightDone={}; mfProtected=null; mfNightKill=null;
+  document.getElementById('mf-day-panel').style.display='block';
+  document.getElementById('mf-night-panel').style.display='none';
+  document.getElementById('mf-dawn-btn').style.display='none';
+  const pb=document.getElementById('mf-phase-banner');
+  pb.className='phase-banner phase-day';
+  document.getElementById('mf-phase-title').textContent='DAY '+mfDay;
+  document.getElementById('mf-day').textContent=mfDay;
+  timeLeft=cfg.discuss;
+  renderMafiaScreen();
+  addLog('mf-log','Day '+mfDay+' — discussion begins','ev');
+  updateTimerEl('mf-timer',timeLeft);
+  timerInterval=setInterval(()=>{timeLeft--;updateTimerEl('mf-timer',timeLeft);if(timeLeft<=0){stopTimer();showToast('TIME TO VOTE!','y');}},1000);
+}
+function startNight(){
+  stopTimer(); mfPhase='night';
+  mfNightDone={}; mfProtected=null; mfNightKill=null;
+  document.getElementById('mf-day-panel').style.display='none';
+  document.getElementById('mf-night-panel').style.display='block';
+  document.getElementById('mf-dawn-btn').style.display='none';
+  const pb=document.getElementById('mf-phase-banner');
+  pb.className='phase-banner phase-night';
+  document.getElementById('mf-phase-title').textContent='NIGHT '+mfDay;
+  const alive=players.filter(p=>p.alive);
+  const hasMafia=alive.some(p=>mfRoles[p.name]==='mafia');
+  const hasDoc=alive.some(p=>mfRoles[p.name]==='doctor');
+  const hasDet=alive.some(p=>mfRoles[p.name]==='detective');
+  const hasVig=alive.some(p=>mfRoles[p.name]==='vigilante');
+  const hasSpy=alive.some(p=>mfRoles[p.name]==='spy');
+  const hasWitch=alive.some(p=>mfRoles[p.name]==='witch');
+  let guide='Night actions — pass phone secretly for each role:<br>';
+  if(hasMafia) guide+='🔴 <strong>Mafia</strong>: scan your kill target<br>';
+  if(hasDoc) guide+='💛 <strong>Doctor</strong>: scan player to protect<br>';
+  if(hasDet) guide+='🔵 <strong>Detective</strong>: scan player to investigate<br>';
+  if(hasVig) guide+='🔫 <strong>Vigilante</strong>: scan target (once per game)<br>';
+  if(hasSpy) guide+='👁 <strong>Spy</strong>: scan to track Mafia\'s movement<br>';
+  if(hasWitch) guide+='🧙 <strong>Witch</strong>: scan to redirect Mafia\'s kill<br>';
+  document.getElementById('mf-night-guide').innerHTML=guide;
+  addLog('mf-log','Night '+mfDay+' — eyes closed','em');
+  showToast('NIGHT FALLS','p');
+}
+function renderMafiaScreen(){
+  const mAlive=players.filter(p=>p.alive&&mfRoles[p.name]==='mafia').length;
+  const tAlive=players.filter(p=>p.alive&&mfRoles[p.name]!=='mafia').length;
+  document.getElementById('mf-town').textContent=tAlive;
+  document.getElementById('mf-mafia').textContent=mAlive;
+  document.getElementById('mf-grid').innerHTML=players.map(p=>`
+    <div class="p-card ${p.alive?'c-alive':'c-elim'}">
+      <div class="pc-name">${p.name}</div>
+      <div class="pc-status">${p.alive?'alive':'eliminated'}</div>
+      <div class="pc-score">${mfVotes[p.name]||0}</div>
+    </div>`).join('');
+  const vl=document.getElementById('vote-list');
+  vl.innerHTML=players.filter(p=>p.alive).map(p=>`
+    <div class="vote-row">
+      <span class="vn">${p.name}</span>
+      <span class="vv" id="vv-${p.name}">${mfVotes[p.name]||0}</span>
+      <button class="vote-btn" onclick="addVote('${p.name}')">VOTE ↑</button>
+    </div>`).join('');
+}
+function addVote(name){mfVotes[name]=(mfVotes[name]||0)+1;renderMafiaScreen();showToast('VOTE → '+name,'y');}
+function executeVote(){
+  stopTimer();
+  const entries=Object.entries(mfVotes).filter(([n])=>players.find(p=>p.name===n&&p.alive));
+  if(!entries.length)return;
+  entries.sort((a,b)=>b[1]-a[1]);
+  const topV=entries[0][1];
+  const tied=entries.filter(e=>e[1]===topV);
+  const victim=tied[Math.floor(Math.random()*tied.length)][0];
+  const p=players.find(pl=>pl.name===victim);
+  const role=mfRoles[victim]; const info=ROLE_INFO[role];
+  // Jester wins if voted out
+  if(role==='jester'){
+    p.alive=false;
+    addLog('mf-log',victim+' voted out — JESTER WINS!','em');
+    showToast(victim+' JESTER WINS!','p');
+    stopTimer();
+    setTimeout(()=>endGame('jester'),1800);return;
+  }
+  p.alive=false;
+  addLog('mf-log',victim+' voted out — was '+info.label,'ev');
+  showToast(victim+' — '+info.label,'r');
+  if(checkMafiaEnd())return;
+  mfDay++;
+  renderMafiaScreen();
+  setTimeout(()=>startNight(),1800);
+}
+let mfNightStep=0;
+function handleMafiaNFC(uid){}
+function mfNightScan(){
+  const z=document.getElementById('mf-scan');
+  z.className='scan-zone scanning';
+  document.getElementById('mf-sz-title').textContent='SCANNING...';
+  setTimeout(()=>{
+    const alive=players.filter(p=>p.alive);
+    if(!alive.length){z.className='scan-zone';return;}
+    const target=alive[Math.floor(Math.random()*alive.length)];
+    const steps=[];
+    const aliveRoles=alive.map(p=>mfRoles[p.name]);
+    if(aliveRoles.includes('mafia')&&!mfNightDone.mafia) steps.push('mafia');
+    if(aliveRoles.includes('witch')&&!mfNightDone.witch) steps.push('witch');
+    if(aliveRoles.includes('doctor')&&!mfNightDone.doctor) steps.push('doctor');
+    if(aliveRoles.includes('bodyguard')&&!mfNightDone.bodyguard) steps.push('bodyguard');
+    if(aliveRoles.includes('detective')&&!mfNightDone.detective) steps.push('detective');
+    if(aliveRoles.includes('vigilante')&&!mfNightDone.vigilante) steps.push('vigilante');
+    if(aliveRoles.includes('spy')&&!mfNightDone.spy) steps.push('spy');
+    if(!steps.length){
+      z.className='scan-zone ok-p';
+      document.getElementById('mf-sz-title').textContent='ALL NIGHT ACTIONS DONE';
+      document.getElementById('mf-sz-sub').textContent='Tap Dawn to start the day';
+      document.getElementById('mf-dawn-btn').style.display='block';
+      return;
+    }
+    const step=steps[0]; mfNightDone[step]=true;
+    const role=ROLE_INFO[step];
+    if(step==='mafia'){
+      mfNightKill=target.name;
+      z.className='scan-zone ok-p';
+      document.getElementById('mf-sz-title').textContent='MAFIA TARGET: '+target.name;
+      document.getElementById('mf-sz-sub').textContent='Target locked — pass to next role';
+      addLog('mf-log','Mafia chose their target (hidden)','em');
+    } else if(step==='witch'){
+      const newTarget=alive.filter(p=>p.name!==mfNightKill)[Math.floor(Math.random()*alive.length)];
+      if(newTarget){mfNightKill=newTarget.name;}
+      z.className='scan-zone ok-p';
+      document.getElementById('mf-sz-title').textContent='WITCH REDIRECTED KILL';
+      document.getElementById('mf-sz-sub').textContent='Kill redirected to '+mfNightKill+' — pass to next role';
+      addLog('mf-log','Witch redirected the kill (hidden)','em');
+    } else if(step==='doctor'){
+      mfProtected=target.name;
+      z.className='scan-zone ok-g';
+      document.getElementById('mf-sz-title').textContent='PROTECTED: '+target.name;
+      document.getElementById('mf-sz-sub').textContent='Doctor shielded this player — pass to next role';
+      addLog('mf-log','Doctor protected someone (hidden)','es');
+    } else if(step==='bodyguard'){
+      mfProtected=target.name;
+      mfNightDone.bodyguardTarget=target.name;
+      z.className='scan-zone ok-g';
+      document.getElementById('mf-sz-title').textContent='BODYGUARD PROTECTING: '+target.name;
+      document.getElementById('mf-sz-sub').textContent='Will die for this player — pass to next role';
+      addLog('mf-log','Bodyguard is protecting someone (hidden)','es');
+    } else if(step==='detective'){
+      const revRole=mfRoles[target.name]||'town';
+      z.className='scan-zone ok-p';
+      document.getElementById('mf-sz-title').textContent=target.name+' = '+ROLE_INFO[revRole].label;
+      document.getElementById('mf-sz-sub').textContent='Only detective sees this — pass to next role';
+      addLog('mf-log','Detective investigated someone (hidden)','em');
+      showToast(target.name+' = '+ROLE_INFO[revRole].label,'p');
+    } else if(step==='vigilante'){
+      mfNightDone.vigilanteTarget=target.name;
+      z.className='scan-zone ok-r';
+      document.getElementById('mf-sz-title').textContent='VIGILANTE TARGET: '+target.name;
+      document.getElementById('mf-sz-sub').textContent='Will eliminate at dawn — pass to next role';
+      addLog('mf-log','Vigilante acting tonight (hidden)','em');
+    } else if(step==='spy'){
+      z.className='scan-zone ok-p';
+      document.getElementById('mf-sz-title').textContent='SPY: MAFIA VISITED '+mfNightKill;
+      document.getElementById('mf-sz-sub').textContent='Only spy sees this — pass to next role';
+      addLog('mf-log','Spy tracked Mafia movement (hidden)','em');
+      showToast('SPY: MAFIA → '+(mfNightKill||'?'),'p');
+    }
+    const remaining=steps.slice(1);
+    if(!remaining.length) document.getElementById('mf-dawn-btn').style.display='block';
+    setTimeout(()=>{
+      z.className='scan-zone';
+      document.getElementById('mf-sz-title').textContent='NIGHT ACTIONS — SCAN TARGET';
+      document.getElementById('mf-sz-sub').textContent='Pass phone to next role';
+    },2800);
+  },700);
+}
+function resolveDawn(){
+  // Apply night kills
+  if(mfNightKill&&mfNightKill!==mfProtected){
+    const victim=players.find(p=>p.name===mfNightKill);
+    if(victim&&victim.alive){
+      victim.alive=false;
+      const role=mfRoles[mfNightKill]; const info=ROLE_INFO[role];
+      addLog('mf-log',mfNightKill+' was eliminated in the night','et');
+      showToast(mfNightKill+' KILLED OVERNIGHT','r');
+      // Bodyguard: dies and kills attacker
+      if(mfProtected&&mfNightDone.bodyguardTarget===mfNightKill){
+        const bg=players.find(p=>mfRoles[p.name]==='bodyguard'&&p.alive);
+        const mafiaAttacker=players.find(p=>mfRoles[p.name]==='mafia'&&p.alive);
+        if(bg){bg.alive=false;addLog('mf-log','Bodyguard died protecting target','es');}
+        if(mafiaAttacker){mafiaAttacker.alive=false;addLog('mf-log','Bodyguard took the attacker down!','es');}
+      }
+    }
+  } else if(mfNightKill&&mfNightKill===mfProtected){
+    addLog('mf-log','The doctor saved the target!','es');
+    showToast('DOCTOR SAVED THE TARGET!','g');
+  }
+  // Vigilante action
+  if(mfNightDone.vigilanteTarget){
+    const vt=players.find(p=>p.name===mfNightDone.vigilanteTarget);
+    const vig=players.find(p=>mfRoles[p.name]==='vigilante'&&p.alive);
+    if(vt&&vt.alive){vt.alive=false;addLog('mf-log','Vigilante eliminated '+vt.name,'et');}
+    if(vt&&mfRoles[vt.name]==='town'&&vig){vig.alive=false;addLog('mf-log','Vigilante killed a townie — dies of guilt','et');}
+  }
+  if(checkMafiaEnd())return;
+  startDay();
+}
+function checkMafiaEnd(){
+  const mAlive=players.filter(p=>p.alive&&mfRoles[p.name]==='mafia').length;
+  const tAlive=players.filter(p=>p.alive&&mfRoles[p.name]!=='mafia').length;
+  if(mAlive===0){stopTimer();endGame('town');return true;}
+  if(mAlive>=tAlive){stopTimer();endGame('mafia');return true;}
+  return false;
+}
+
+// ═══════════════════════════════════════════
+// END GAME + RESULTS
+// ═══════════════════════════════════════════
+function endGame(reason){
+  stopTimer(); stopNFCScan();
+  showScreen('screen-result');
+  const banner=document.getElementById('res-banner');
+  const lbl=document.getElementById('res-lbl');
+  const big=document.getElementById('res-big');
+  const list=document.getElementById('res-list');
+  if(gMode==='tag'){
+    banner.className='result-banner res-y';
+    lbl.textContent='// Tag Complete';
+    big.textContent='GAME OVER';
+    const sorted=[...players].sort((a,b)=>a.tagged-b.tagged);
+    list.innerHTML=sorted.map((p,i)=>`<div class="res-row sv"><div class="ri">${i===0?'★':i+1}</div><div class="rn">${p.name}</div><div class="rs">${p.tagged} tags received</div></div>`).join('');
+  } else if(gMode==='run'){
+    const rWin=(reason==='trap')||(reason==='timeout'&&players.filter(p=>p.name!==rmHunter&&p.alive).length>0);
+    banner.className='result-banner '+(rWin?'res-g':'res-r');
+    lbl.textContent=rWin?'// Runners Survived!':'// Hunt Complete';
+    big.textContent=rWin?'RUNNERS WIN':'HUNTER WINS';
+    list.innerHTML=`<div class="res-row ${reason==='trap'?'el':'sv'}"><div class="ri">🔴</div><div class="rn">${rmHunter}</div><div class="rs">${reason==='trap'?'TRAPPED — eliminated':'Hunter — '+rmTags+' tags'}</div></div>`+
+    players.filter(p=>p.name!==rmHunter).sort((a,b)=>b.alive-a.alive).map(p=>`<div class="res-row ${p.alive?'sv':'el'}"><div class="ri">${p.alive?'✓':'✕'}</div><div class="rn">${p.name}</div><div class="rs">${p.alive?'survived':'eliminated'}</div></div>`).join('');
+  } else {
+    const results={town:{cls:'res-g',lbl:'// Mafia eliminated!',big:'TOWN WINS'},mafia:{cls:'res-p',lbl:'// Mafia took over',big:'MAFIA WINS'},jester:{cls:'res-p',lbl:'// Jester was voted out!',big:'JESTER WINS'},manual:{cls:'res-y',lbl:'// Game ended early',big:'GAME OVER'}};
+    const r=results[reason]||results.manual;
+    banner.className='result-banner '+r.cls;
+    lbl.textContent=r.lbl; big.textContent=r.big;
+    list.innerHTML=players.map(p=>{
+      const role=mfRoles[p.name]||'town'; const info=ROLE_INFO[role];
+      return `<div class="res-row ${p.alive?'sv':'el'}"><div class="ri">${p.alive?'✓':'✕'}</div><div class="rn">${p.name}</div><div class="rs">${info.label} — ${p.alive?'survived':'eliminated'}</div></div>`;
+    }).join('');
+  }
+  // reset nav
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('nav-hub').classList.add('active');
+}
+function playAgain(){
+  if(gMode==='tag') startTagGame();
+  else if(gMode==='run') startRunGame();
+  else startMafiaReveal();
+}
+
+// ═══════════════════════════════════════════
+// SPECTATOR
+// ═══════════════════════════════════════════
+function initSpectator(){
+  specEvts=[];
+  addSpecEvent('Spectator board online','start');
+  addSpecEvent('GHOST tagged NEON','tag');
+  specRender();
+  startSpecTimer();
+}
+function specMode(mode,btn){
+  specCurrentMode=mode;
+  document.querySelectorAll('#screen-spectator .topt').forEach(b=>{b.classList.remove('ay','ar','ap');});
+  const cls=mode==='mafia'?'ap':mode==='run'?'ar':'ay';
+  btn.classList.add(cls);
+  specRender();
+}
+let specTimerInterval=null;
+function startSpecTimer(){
+  if(specTimerInterval)clearInterval(specTimerInterval);
+  specTimerVal=180;
+  specTimerInterval=setInterval(()=>{
+    specTimerVal--;
+    if(specTimerVal<0)specTimerVal=180;
+    const el=document.getElementById('spec-timer-val');
+    if(el){el.textContent=fmt(specTimerVal);el.className='timer-big'+(specTimerVal<=30?' danger':specTimerVal<=60?' warn':'');}
+  },1000);
+}
+function addSpecEvent(msg,type){
+  const now=new Date();
+  const t=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  specEvts.unshift({msg,type,t});
+  if(specEvts.length>20)specEvts.pop();
+  const log=document.getElementById('spec-log');
+  if(!log)return;
+  const dots={tag:'et',safe:'es',trap:'ep',vote:'ev',night:'em',start:''};
+  log.innerHTML=specEvts.map(e=>`<div class="log-entry ${dots[e.type]||''}"><span class="la">${e.msg}</span><span class="lt">${e.t}</span></div>`).join('');
+}
+function specRender(){
+  const el=document.getElementById('spec-body');
+  if(specCurrentMode==='tag') el.innerHTML=specRenderTag();
+  else if(specCurrentMode==='run') el.innerHTML=specRenderRun();
+  else el.innerHTML=specRenderMafia();
+}
+function specRenderTag(){
+  const sorted=[...specTagPlayers].sort((a,b)=>a.tagged-b.tagged);
+  const it=specTagPlayers.find(p=>p.isIt);
+  const total=specTagPlayers.reduce((s,p)=>s+p.tagged,0);
+  return `<div class="stat-strip s4">
+    <div class="stat-box"><div class="sb-lbl">Players</div><div class="sb-val vy">${specTagPlayers.length}</div></div>
+    <div class="stat-box"><div class="sb-lbl">Tags</div><div class="sb-val vr">${total}</div></div>
+    <div class="stat-box"><div class="sb-lbl">IT</div><div class="sb-val vy" style="font-size:12px;padding-top:6px;">${it?it.name:'—'}</div></div>
+    <div class="stat-box"><div class="sb-lbl">Round</div><div class="sb-val vy">${total+1}</div></div>
+  </div>
+  <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);">timer</span>
+    <div class="timer-big" id="spec-timer-val" style="font-size:32px;">${fmt(specTimerVal)}</div>
+  </div>
+  <div class="label">// Standings — fewest tags wins</div><div style="margin-bottom:8px;"></div>
+  <table class="spec-table"><thead><tr><th>Rank</th><th>Player</th><th>Status</th><th style="text-align:right;">Tags</th></tr></thead><tbody>
+  ${sorted.map((p,i)=>`<tr><td><span class="rank ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</span></td><td style="font-weight:700;">${p.name}</td><td><span class="status-pill ${p.isIt?'sp-it':'sp-alive'}">${p.isIt?'IT':'safe'}</span></td><td style="text-align:right;"><span class="spec-score vy">${p.tagged}</span></td></tr>`).join('')}
+  </tbody></table>`;
+}
+function specRenderRun(){
+  const hunter=specRunPlayers.find(p=>p.role==='hunter');
+  const runners=specRunPlayers.filter(p=>p.role==='runner');
+  const alive=runners.filter(p=>p.alive).length;
+  return `<div class="stat-strip s3">
+    <div class="stat-box"><div class="sb-lbl">Hunter</div><div class="sb-val vr" style="font-size:12px;padding-top:5px;">${hunter?hunter.name:'—'}</div></div>
+    <div class="stat-box"><div class="sb-lbl">Alive</div><div class="sb-val vg">${alive}</div></div>
+    <div class="stat-box"><div class="sb-lbl">Elim</div><div class="sb-val vr">${runners.length-alive}</div></div>
+  </div>
+  <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);">survive</span>
+    <div class="timer-big" id="spec-timer-val" style="font-size:32px;">${fmt(specTimerVal)}</div>
+  </div>
+  <table class="spec-table"><thead><tr><th>Player</th><th>Status</th><th style="text-align:right;">Special</th></tr></thead><tbody>
+  <tr><td style="font-weight:700;">${hunter?hunter.name:'—'}</td><td><span class="status-pill sp-hunter">Hunter</span></td><td style="text-align:right;">—</td></tr>
+  ${runners.map(p=>`<tr><td style="font-weight:700;${!p.alive?'opacity:0.4':''}">${p.name}</td><td><span class="status-pill ${p.alive?'sp-alive':'sp-elim'}">${p.alive?'running':'elim'}</span></td><td style="text-align:right;font-size:12px;color:var(--dim);">${p.trapped?'⚡trap':p.safe?'🛡safe':'—'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+function specRenderMafia(){
+  const mAlive=specMafPlayers.filter(p=>p.alive&&p.role==='mafia').length;
+  const tAlive=specMafPlayers.filter(p=>p.alive&&p.role!=='mafia').length;
+  const sorted=[...specMafPlayers].sort((a,b)=>b.votes-a.votes);
+  return `<div style="text-align:center;padding:10px;border-radius:4px;margin-bottom:12px;border:1px solid;${specMafPhase==='day'?'background:#1a1500;border-color:#3a2800;color:var(--yellow);':'background:#12101f;border-color:#2a1f4f;color:var(--purple-light);'}">
+    <div style="font-size:9px;letter-spacing:4px;text-transform:uppercase;opacity:0.7;margin-bottom:2px;">// Phase</div>
+    <div style="font-family:'Black Han Sans',sans-serif;font-size:24px;">${specMafPhase==='day'?'☀ Day '+specMafDay:'🌙 Night '+specMafDay}</div>
+  </div>
+  <div class="stat-strip s3">
+    <div class="stat-box"><div class="sb-lbl">Town</div><div class="sb-val vg">${tAlive}</div></div>
+    <div class="stat-box"><div class="sb-lbl">Mafia</div><div class="sb-val vp">${mAlive}</div></div>
+    <div class="stat-box"><div class="sb-lbl">Day</div><div class="sb-val vy">${specMafDay}</div></div>
+  </div>
+  <table class="spec-table"><thead><tr><th>Player</th><th>Status</th><th style="text-align:right;">${specMafPhase==='day'?'Votes':'—'}</th></tr></thead><tbody>
+  ${sorted.map(p=>`<tr style="${!p.alive?'opacity:0.35':''}"><td style="font-weight:700;">${p.name}</td><td><span class="status-pill ${p.alive?p.role==='mafia'?'sp-mafia':'sp-alive':'sp-elim'}">${p.alive?p.role==='mafia'?'mafia':'alive':'elim'}</span></td><td style="text-align:right;"><span class="spec-score vp">${specMafPhase==='day'?p.votes:'—'}</span></td></tr>`).join('')}
+  </tbody></table>`;
+}
+function specSimEvent(){
+  if(specCurrentMode==='tag'){
+    const it=specTagPlayers.find(p=>p.isIt);
+    const others=specTagPlayers.filter(p=>!p.isIt);
+    if(it&&others.length){
+      if(it)it.isIt=false;
+      const ni=others[Math.floor(Math.random()*others.length)];
+      ni.isIt=true; ni.tagged++;
+      addSpecEvent(it.name+' tagged '+ni.name,'tag');
+    }
+  } else if(specCurrentMode==='run'){
+    const runners=specRunPlayers.filter(p=>p.role==='runner'&&p.alive);
+    if(runners.length){const r=runners[Math.floor(Math.random()*runners.length)];r.alive=false;addSpecEvent('Hunter eliminated '+r.name,'tag');}
+  } else {
+    specMafPlayers.filter(p=>p.alive).forEach(p=>p.votes=Math.floor(Math.random()*5));
+    if(specMafPhase==='day'){specMafPhase='night';addSpecEvent('Night falls — mafia acts','night');}
+    else{specMafPhase='day';specMafDay++;addSpecEvent('Dawn — Day '+specMafDay,'vote');}
+  }
+  specRender();
+}
+
+// ═══════════════════════════════════════════
+// ROLE EDITOR
+// ═══════════════════════════════════════════
+function initRoleEditor(){reTab('roles');}
+function reTab(tab){
+  document.querySelectorAll('.re-tab-content').forEach(c=>c.style.display='none');
+  document.getElementById('re-'+tab).style.display='block';
+  document.querySelectorAll('#screen-roles .topt').forEach(b=>{b.classList.remove('ay','ar','ap');});
+  document.getElementById('re-tab-'+tab).classList.add('ap');
+  if(tab==='roles'){renderCoreGrid();renderSpecialGrid();}
+  if(tab==='presets')renderPresetsGrid();
+  if(tab==='summary')renderSummary();
+}
+function renderCoreGrid(){
+  document.getElementById('core-grid').innerHTML=['mafia','town'].map(k=>{
+    const r=ROLES[k];
+    const c=roleColor(k);
+    return `<div class="re-card ${r.cls} enabled">
+      <div class="rc-icon">${r.icon}</div>
+      <div class="rc-name" style="color:${c};">${r.label}</div>
+      <div class="rc-team">${r.team}</div>
+      <div class="rc-desc">${r.desc}</div>
+      <div class="rc-cnt-row"><label>Count</label><div class="cnt-btns"><button class="cnt-b" onclick="adjCnt('${k}',-1)">−</button><div class="cnt-n" id="rcnt-${k}" style="color:${c};">${r.count}</div><button class="cnt-b" onclick="adjCnt('${k}',1)">+</button></div></div>
+    </div>`;
+  }).join('');
+}
+function renderSpecialGrid(){
+  const specials=['detective','doctor','vigilante','jester','sheriff','bodyguard','spy','witch'];
+  document.getElementById('special-grid').innerHTML=specials.map(k=>{
+    const r=ROLES[k]; const en=r.enabled; const c=roleColor(k);
+    return `<div class="re-card ${r.cls} ${en?'enabled':'disabled'}" id="recard-${k}">
+      <div class="rc-toggle" style="color:${en?c:'var(--faint)'};">${en?'ON':'OFF'}</div>
+      <div class="rc-icon">${r.icon}</div>
+      <div class="rc-name" style="color:${c};">${r.label}</div>
+      <div class="rc-team">${r.team}</div>
+      <div class="rc-desc">${r.desc}</div>
+      <button style="margin-top:8px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:${en?c:'var(--bg3)'};color:${en?'#0d0d0d':'var(--dim)'};border:none;border-radius:3px;padding:5px 10px;cursor:pointer;width:100%;" onclick="toggleRole('${k}')">${en?'DISABLE':'ENABLE'}</button>
+      ${en?`<div class="rc-cnt-row" style="margin-top:6px;"><label>Count</label><div class="cnt-btns"><button class="cnt-b" onclick="adjCnt('${k}',-1)">−</button><div class="cnt-n" id="rcnt-${k}" style="color:${c};">${r.count}</div><button class="cnt-b" onclick="adjCnt('${k}',1)">+</button></div></div>`:''}
+    </div>`;
+  }).join('');
+}
+function toggleRole(k){ROLES[k].enabled=!ROLES[k].enabled;renderSpecialGrid();}
+function adjCnt(k,d){
+  const r=ROLES[k]; r.count=Math.max(r.min,Math.min(r.max,r.count+d));
+  const el=document.getElementById('rcnt-'+k); if(el)el.textContent=r.count;
+}
+function renderPresetsGrid(){
+  const rcols={mafia:'#a78bfa',town:'#4caf50',detective:'#60a5fa',doctor:'#f5e642',vigilante:'#ff3c3c',jester:'#f0a0f0',sheriff:'#ffa020',bodyguard:'#80b0ff',spy:'#00d4d4',witch:'#ff80a0'};
+  document.getElementById('preset-grid').innerHTML=PRESETS.map((p,i)=>`
+    <div class="preset-card" onclick="applyPreset(${i})">
+      <div class="pn">${p.name}</div>
+      <div class="pp">${p.players} players</div>
+      <div class="pr">${Object.entries(p.roles).map(([r,c])=>`<span class="tiny-pill" style="background:${rcols[r]}22;color:${rcols[r]};border-color:${rcols[r]}44;">${ROLES[r].icon}${c>1?'×'+c:''} ${r}</span>`).join('')}</div>
+    </div>`).join('');
+}
+function applyPreset(idx){
+  const p=PRESETS[idx];
+  Object.keys(ROLES).forEach(k=>{if(!ROLES[k].core){ROLES[k].enabled=false;} ROLES[k].count=ROLES[k].min||0;});
+  Object.entries(p.roles).forEach(([k,c])=>{if(ROLES[k]){ROLES[k].count=c;if(!ROLES[k].core)ROLES[k].enabled=true;}});
+  showToast('Preset "'+p.name+'" applied','p');
+  reTab('summary');
+}
+function renderSummary(){
+  const active=Object.entries(ROLES).filter(([k,r])=>r.core||r.enabled);
+  const tp=active.filter(([k,r])=>r.team==='town').reduce((s,[k,r])=>s+r.count*(k==='detective'?2:k==='doctor'?1.5:k==='vigilante'?2:k==='sheriff'?1.5:k==='bodyguard'?1.5:k==='spy'?1.5:1),0);
+  const mp=active.filter(([k,r])=>r.team==='mafia').reduce((s,[k,r])=>s+r.count*2.5,0);
+  const total=tp+mp; const pct=total>0?Math.round(tp/total*100):50;
+  document.getElementById('bal-fill').style.width=pct+'%';
+  const diff=Math.abs(pct-50);
+  const vd=document.getElementById('bal-verdict');
+  if(diff<10){vd.textContent='⬤ BALANCED';vd.style.color='var(--green)';}
+  else if(pct>60){vd.textContent='⬤ TOWN FAVORED';vd.style.color='var(--yellow)';}
+  else{vd.textContent='⬤ MAFIA FAVORED';vd.style.color='var(--purple-light)';}
+  const totalCount=active.reduce((s,[k,r])=>s+r.count,0);
+  document.getElementById('sum-list').innerHTML=`<div style="font-size:10px;color:var(--dim);margin-bottom:6px;">Total players needed: <span style="color:var(--yellow);font-weight:700;">${totalCount}</span></div>`+
+  active.map(([k,r])=>{const c=roleColor(k);return `<div class="sum-row"><div class="sl"><div class="si">${r.icon}</div><div><div class="sn" style="color:${c};">${r.label}</div><div class="sa">${r.ability}</div></div></div><div class="sc" style="color:${c};">×${r.count}</div></div>`;}).join('');
+}
+function copyRoles(){
+  const active=Object.entries(ROLES).filter(([k,r])=>r.core||r.enabled);
+  const text=active.map(([k,r])=>`${r.icon} ${r.label} ×${r.count} — ${r.ability}`).join('\n');
+  navigator.clipboard.writeText(text).then(()=>showToast('Copied!','g')).catch(()=>showToast('Copy failed','r'));
+}
+
+// ═══════════════════════════════════════════
+// NFC GUIDE
+// ═══════════════════════════════════════════
+let currentGTab = 'overview';
+function initGuide(){renderGuide(currentGTab);}
+function gTab(id,btn){
+  currentGTab=id;
+  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGuide(id);
+}
+function renderGuide(tab){
+  const el=document.getElementById('guide-body');
+  const guides={
+    overview:`
+      <div class="compat-grid">
+        <div class="compat-box"><div class="ci">🤖</div><div class="cn">Android Chrome</div><div class="cs2 c-yes">Full Support</div></div>
+        <div class="compat-box"><div class="ci">🍎</div><div class="cn">iOS Safari</div><div class="cs2 c-no">No Web NFC</div></div>
+        <div class="compat-box"><div class="ci">📱</div><div class="cn">React Native</div><div class="cs2 c-yes">Both Platforms</div></div>
+      </div>
+      <div class="guide-step"><h4>Strategy</h4><p>Use <strong style="color:var(--yellow);">Web NFC API</strong> for Android Chrome — zero install, runs in browser. Use <strong style="color:var(--purple-light);">React Native + react-native-nfc-manager</strong> for a native app that works on both Android and iOS. iOS NFC requires a native app — Safari has no Web NFC support.</p></div>
+      <div class="guide-step gs-g"><h4>Card Registry</h4><p>Each chip has a unique 7-byte factory UID that never changes. During setup, scan each player's card to map their UID to their name in localStorage. That mapping persists between games.</p></div>
+      <div class="guide-step gs-r"><h4>This App</h4><p>Tap any scan zone to simulate NFC in demo mode. On Android Chrome over HTTPS, real NFC scanning activates automatically when you tap the zone. No extra setup needed.</p></div>`,
+    web:`<span style="display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;background:#1e2a1e;color:var(--green);border:1px solid #2e4a2e;margin-bottom:12px;">Android Chrome 89+ Only</span>
+      <div class="guide-step"><h4>Feature Detection</h4></div>
+      <div class="code-block"><span class="ck">if</span> (<span class="cs">'NDEFReader'</span> <span class="ck">in</span> window) {
+  <span class="cc">// Web NFC available</span>
+  startNFCScan();
+} <span class="ck">else</span> {
+  <span class="cc">// Fallback: simulate or use React Native</span>
+  showSimulationMode();
+}</div>
+      <div class="guide-step"><h4>Read a Card UID</h4></div>
+      <div class="code-block"><span class="ck">const</span> controller = <span class="ck">new</span> <span class="ct">AbortController</span>();
+<span class="ck">const</span> reader = <span class="ck">new</span> <span class="ct">NDEFReader</span>();
+
+<span class="ck">await</span> reader.<span class="cf">scan</span>({ signal: controller.signal });
+
+reader.<span class="cf">addEventListener</span>(<span class="cs">'reading'</span>, ({ serialNumber }) => {
+  <span class="ck">const</span> uid = serialNumber
+    .<span class="cf">replace</span>(<span class="cs">/:/g</span>, <span class="cs">''</span>)
+    .<span class="cf">toUpperCase</span>();
+  <span class="cf">handleScan</span>(uid);
+});</div>
+      <div class="guide-step gs-r"><h4>Debounce — Important!</h4><p>NDEFReader fires continuously while the card is near. Add an 800ms cooldown to prevent double-fires.</p></div>
+      <div class="code-block"><span class="ck">let</span> lastUID = <span class="cs">''</span>, lastTime = <span class="cs">0</span>;
+<span class="ck">function</span> <span class="cf">handleScan</span>(uid) {
+  <span class="ck">const</span> now = <span class="ct">Date</span>.<span class="cf">now</span>();
+  <span class="ck">if</span> (uid === lastUID && now - lastTime < <span class="cs">800</span>) <span class="ck">return</span>;
+  lastUID = uid; lastTime = now;
+  <span class="cf">processGameScan</span>(uid);
+}</div>
+      <div class="guide-step gs-g"><h4>HTTPS Required</h4><p>Web NFC only works on HTTPS origins. Use ngrok, Vercel, or Netlify. localhost also works in dev.</p></div>`,
+    rn:`<span style="display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;background:#101018;color:#60a5fa;border:1px solid #1e2a4a;margin-bottom:12px;">Android + iOS</span>
+      <div class="guide-step"><h4>Install</h4></div>
+      <div class="code-block">npm install react-native-nfc-manager
+<span class="cc"># iOS pods</span>
+cd ios && pod install</div>
+      <div class="guide-step"><h4>Android — AndroidManifest.xml</h4></div>
+      <div class="code-block"><span class="ck">&lt;uses-permission</span> <span class="cf">android:name</span>=<span class="cs">"android.permission.NFC"</span> <span class="ck">/&gt;</span>
+<span class="ck">&lt;uses-feature</span> <span class="cf">android:name</span>=<span class="cs">"android.hardware.nfc"</span>
+              <span class="cf">android:required</span>=<span class="cs">"true"</span> <span class="ck">/&gt;</span></div>
+      <div class="guide-step"><h4>iOS — Info.plist + Entitlement</h4></div>
+      <div class="code-block"><span class="ck">&lt;key&gt;</span>NFCReaderUsageDescription<span class="ck">&lt;/key&gt;</span>
+<span class="cs">&lt;string&gt;Used to scan player NFC cards&lt;/string&gt;</span>
+<span class="cc">&lt;!-- Xcode: Signing → + NFC Tag Reading --&gt;</span></div>
+      <div class="guide-step"><h4>Core Scan Function</h4></div>
+      <div class="code-block"><span class="ck">import</span> NfcManager, { NfcTech } <span class="ck">from</span> <span class="cs">'react-native-nfc-manager'</span>;
+
+<span class="ck">await</span> NfcManager.<span class="cf">start</span>(); <span class="cc">// once at app start</span>
+
+<span class="ck">async function</span> <span class="cf">readCardUID</span>() {
+  <span class="ck">try</span> {
+    <span class="ck">await</span> NfcManager.<span class="cf">requestTechnology</span>(NfcTech.NfcA);
+    <span class="ck">const</span> tag = <span class="ck">await</span> NfcManager.<span class="cf">getTag</span>();
+    <span class="ck">const</span> uid = tag.id
+      .<span class="cf">map</span>(b => b.<span class="cf">toString</span>(<span class="cs">16</span>).<span class="cf">padStart</span>(<span class="cs">2</span>, <span class="cs">'0'</span>))
+      .<span class="cf">join</span>(<span class="cs">''</span>).<span class="cf">toUpperCase</span>();
+    <span class="cf">handleScan</span>(uid);
+  } <span class="ck">finally</span> {
+    NfcManager.<span class="cf">cancelTechnologyRequest</span>();
+  }
+}</div>
+      <div class="guide-step gs-g"><h4>Same UIDs Across Platforms</h4><p>Card UIDs from Web NFC and React Native match exactly — cards registered via Android Chrome work in the native app.</p></div>`,
+    hardware:`
+      <div class="guide-step gs-g"><h4>NTAG213 — Player Cards</h4><p>Best pick. 144 bytes, unique 7-byte UID, works on all NFC phones. Available as stickers ($0.20–0.50), cards, or wristbands. Buy 25–50 packs on Amazon/AliExpress. Use stickers on laminated card stock.</p></div>
+      <div class="guide-step"><h4>NTAG215 — Safe Zone Spots</h4><p>504 bytes storage. Use for fixed safe zone stickers on walls, fences, posts. Extra storage lets you write a label to the chip for debugging.</p></div>
+      <div class="guide-step gs-r"><h4>Avoid: MIFARE Classic</h4><p>Older chips with encryption complications and poor iOS compatibility. Stick to NTAG series throughout.</p></div>
+      <div class="divider"></div>
+      <div class="label">// Physical Layout</div><div style="margin-bottom:8px;"></div>
+      <div class="guide-step"><h4>Player cards</h4><p>NTAG213 sticker inside a credit-card holder or lanyard. Each player wears it — makes scanning feel natural.</p></div>
+      <div class="guide-step"><h4>Trap cards</h4><p>Second NTAG213 sticker on a small card. Looks identical to the player card. Runner holds it secretly — hunter can't tell the difference.</p></div>
+      <div class="guide-step"><h4>Safe zones</h4><p>NTAG215 sticker taped to a wall, post, or bench. Register each one in the app as a safe zone UID. Recommended: tape them at chest height for easy phone-taps.</p></div>`,
+    code:`
+      <div class="guide-step"><h4>Card Registry (localStorage)</h4></div>
+      <div class="code-block"><span class="ck">const</span> registry = <span class="ct">JSON</span>.<span class="cf">parse</span>(
+  localStorage.<span class="cf">getItem</span>(<span class="cs">'nfc_registry'</span>) || <span class="cs">'{}'</span>
+);
+
+<span class="ck">function</span> <span class="cf">registerCard</span>(uid, playerName, type) {
+  registry[uid] = { playerName, type };
+  <span class="cc">// type: 'player' | 'safeZone' | 'trap'</span>
+  localStorage.<span class="cf">setItem</span>(<span class="cs">'nfc_registry'</span>,
+    <span class="ct">JSON</span>.<span class="cf">stringify</span>(registry));
+}</div>
+      <div class="guide-step"><h4>Game Scan Router</h4></div>
+      <div class="code-block"><span class="ck">function</span> <span class="cf">processGameScan</span>(uid) {
+  <span class="ck">const</span> entry = registry[uid];
+  <span class="ck">if</span> (!entry) { <span class="cf">showToast</span>(<span class="cs">'Unknown card'</span>); <span class="ck">return</span>; }
+  <span class="ck">switch</span> (entry.type) {
+    <span class="ck">case</span> <span class="cs">'player'</span>:  <span class="cf">handlePlayerTag</span>(entry.playerName); <span class="ck">break</span>;
+    <span class="ck">case</span> <span class="cs">'safeZone'</span>: <span class="cf">handleSafeZone</span>(entry.playerName); <span class="ck">break</span>;
+    <span class="ck">case</span> <span class="cs">'trap'</span>:     <span class="cf">handleTrapCard</span>(entry.playerName); <span class="ck">break</span>;
+  }
+}</div>
+      <div class="guide-step"><h4>Cross-Platform Wrapper</h4></div>
+      <div class="code-block"><span class="ck">class</span> <span class="ct">NFCScanner</span> {
+  <span class="ck">async</span> <span class="cf">start</span>(onScan) {
+    <span class="ck">if</span> (<span class="cs">'NDEFReader'</span> <span class="ck">in</span> window) {
+      <span class="ck">this</span>.reader = <span class="ck">new</span> <span class="ct">NDEFReader</span>();
+      <span class="ck">await this</span>.reader.<span class="cf">scan</span>();
+      <span class="ck">this</span>.reader.<span class="cf">addEventListener</span>(<span class="cs">'reading'</span>,
+        ({ serialNumber }) =>
+          <span class="cf">onScan</span>(serialNumber.<span class="cf">replace</span>(<span class="cs">/:/g</span>,<span class="cs">''</span>).<span class="cf">toUpperCase</span>())
+      );
+    } <span class="ck">else if</span> (window.ReactNativeWebView) {
+      <span class="cc">// React Native WebView bridge</span>
+      window.<span class="cf">onNFCScan</span> = onScan;
+      window.ReactNativeWebView.<span class="cf">postMessage</span>(
+        <span class="ct">JSON</span>.<span class="cf">stringify</span>({ action: <span class="cs">'startScan'</span> })
+      );
+    }
+  }
+}</div>
+      <div class="guide-step gs-p"><h4>Deploy</h4><p>Host this HTML file on Vercel, Netlify, or GitHub Pages. Share the HTTPS URL with players. Android Chrome users get full NFC. iOS users get simulation mode. No app store needed.</p></div>`
+  };
+  el.innerHTML=guides[tab]||'';
+}
+
+// ─── INIT ───
+checkNFC();
+document.getElementById('p-input').addEventListener('keydown',e=>{if(e.key==='Enter')addPlayer();});
+// Default demo players for setup preview
+setTimeout(()=>{
+  if(!players.length){
+    ['BLAZE','GHOST','NEON'].forEach(n=>players.push({name:n,nfcId:'NFC-'+n.slice(0,3),alive:true,tagged:0,isIt:false,trapped:false,safe:false,role:'',votes:0,revealed:false}));
+  }
+},100);
+</script>
+</body>
+</html>
